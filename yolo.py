@@ -4,4 +4,4 @@ from ultralytics import YOLO
 model = YOLO("yolo26n.pt")
 
 # Start training on your custom dataset
-model.train(data="path/to/dataset.yaml", epochs=100, imgsz=640)
+model.train(data="path/to/dataset.yaml", epochs=30, imgsz=640)
