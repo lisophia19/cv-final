@@ -7,14 +7,14 @@ from pathlib import Path
 
 load_dotenv()
 API_KEY = os.getenv("ROBOFLOW_API_KEY")
-IMAGE_PATH = "./data/fridge_test2.jpg"   # change if needed
+IMAGE_PATH = "./fridge_data/fridge_test2.jpg"   # change if needed
 
 client = InferenceHTTPClient(
     api_url="https://serverless.roboflow.com",
     api_key=API_KEY
 )
 
-client.configure(InferenceConfiguration(confidence_threshold=0.1))
+#client.configure(InferenceConfiguration(confidence_threshold=0.1))
 result = client.infer(IMAGE_PATH, model_id="food-ingredients-dataset/3")
 print(result)
 
