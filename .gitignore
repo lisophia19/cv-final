@@ -1,1 +1,7 @@
+# Retrieval eval artifacts
+runs/retrieval_eval/
+
+# Local env
 .venv/
+__pycache__/
+*.pyc
