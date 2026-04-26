@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-26 (UTC)  
+**Last updated:** 2026-04-26 (UTC, post app integration verification)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 **Why I keep this file:** I want anyone on the team (or grading the project) to open one document and understand what I am responsible for, what I have already shipped, what is still open, and what I am waiting on from others. I will update it as my workstream changes.
@@ -12,9 +12,9 @@
 | Item | Status |
 |------|--------|
 | **What I own** | Turning detected ingredients (with confidences) into a ranked list of recipe suggestions; evaluation tooling; a stable hook for whoever does end-to-end integration. |
-| **What I shipped** | The `recipe_retrieval` package: indexing, three ranking strategies, eval + CLI, tests, sample data, and app wiring so `app.py` now calls retrieval instead of returning a stub. It lives on my branch **`martin/recipe-retrieval`** (it does not have to be on `main` yet). |
+| **What I shipped** | The `recipe_retrieval` package: indexing, three ranking strategies, eval + CLI, tests, sample data, and app wiring so `app.py` now calls retrieval instead of returning a stub. I also verified the app behavior end-to-end (upload -> detections -> suggested recipes) in the current environment. It lives on my branch **`martin/recipe-retrieval`** (it does not have to be on `main` yet). |
 | **Am I blocking you?** | I do not believe so. If you are doing the demo, you can call into my API whenever you are ready. The input shape I expect matches the list-of-dicts idea from `test.py` after deduplication. |
-| **What I am waiting on** | A real recipe export (path + format) from whoever owns the dataset; a finalized ingredient vocabulary / alias map from normalization; stable detector output (names + thresholds) from vision. |
+| **What I am waiting on** | A real recipe export (path + format) from whoever owns the dataset; a finalized ingredient vocabulary / alias map from normalization; stable detector output (names + thresholds) from vision. None of these block a semi-running integrated pipeline at this point. |
 
 ---
 
@@ -53,7 +53,7 @@ I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My
 | **Data** | Point my indexer at our **real** recipe export (exact path, schema, cleaning rules). | I am waiting on whoever owns the Recipe1M+ slice (or our agreed substitute) to give me a stable artifact I should not invent on my own. |
 | **Vocabulary** | A single **alias map** in the repo (for example “tomatoes” → “tomato”) so detector strings and recipe strings line up. | I am waiting on normalization / shared vocabulary; I already wired support for a JSON alias file when you have one (`AliasFileNormalizer` / `retrieve_with_reconciled_vocab`). |
 | **Vision** | **Stable** detection: thresholds, class names, and a clear contract for what gets sent to me. | I am blocked on vision stabilizing; once it does, I will re-tune ranker weights if needed and re-run evals on our agreed set. |
-| **End-to-end** | Validate the semi-running path **image → detect → rank → show** in the target demo environment. | I completed retrieval wiring in `app.py`; remaining work is environment-level verification (for example Streamlit and model weights on the demo machine) and quality tuning with final data/vocabulary. |
+| **End-to-end** | Keep validating the semi-running path **image → detect → rank → show** in the target demo environment. | I completed retrieval wiring in `app.py` and verified that upload now updates detections and suggestions. Remaining work is quality tuning with final data/vocabulary. |
 | **Stretch** | Stronger retrieval baselines (for example BM25 or embeddings) if we want extra depth. | I did not prioritize it for the first baseline; I will add it only if the timeline and grading expectations make it worth it. |
 
 ---
@@ -95,6 +95,7 @@ I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My
 | 2026-04-22 | Sample recipes, eval cases, example query, sample alias file | `fridge_data/sample_recipes.jsonl`, `fridge_data/eval_cases.jsonl`, `fridge_data/sample_query.json`, `fridge_data/sample_alias_map.json` |
 | 2026-04-26 | Synced my branch with latest `main` and reconciled path changes from `data/` to `fridge_data/` for retrieval samples and docs | `README.md`, `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `recipe_retrieval/integrate.py`, `Martin-work-done.md` |
 | 2026-04-26 | Wired Streamlit demo retrieval path (`get_recipes`) to call the real ranking pipeline with sample corpus + alias fallback | `app.py` |
+| 2026-04-26 | Verified integration quality gate: unit tests pass, retrieval eval CLI runs, and app behavior shows detections + suggested recipes after upload | `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `app.py`, `Martin-work-done.md` |
 | 2026-04-22 | Unit tests | `tests/test_retrieval.py` |
 | 2026-04-22 | README instructions for retrieval (and related notes) | `README.md` |
 | 2026-04-22 | Gitignore updates for local eval output and bytecode | `.gitignore` |
