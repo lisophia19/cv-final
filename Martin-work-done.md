@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-26 (UTC, post app integration + sprint planning)  
+**Last updated:** 2026-04-26 (UTC, post Sprint B eval pass)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 **Why I keep this file:** I want anyone on the team (or grading the project) to open one document and understand what I am responsible for, what I have already shipped, what is still open, and what I am waiting on from others. I will update it as my workstream changes.
@@ -73,6 +73,7 @@ I am organizing my next work into short, reviewable chunks so quality improvemen
    - Run all baseline rankers against the same case set and store artifacts.
    - Capture a compact before/after comparison note for tuning changes.
    - **Definition of done:** repeatable eval command + saved artifact + short interpretation.
+   - **Status update (2026-04-26):** completed on an expanded case file (`fridge_data/eval_cases_sprint_b.jsonl`) and artifact logged.
 
 3. **Sprint C — scoring tuning after dependencies freeze (blocked on others)**
    - Tune weighting/penalties after the team finalizes:
@@ -89,16 +90,17 @@ This section tracks retrieval-side measured performance only (my role), so progr
 
 ### Latest verified run
 - **Date:** 2026-04-26
-- **Command:** `python3 -m recipe_retrieval.cli eval --recipes fridge_data/sample_recipes.jsonl --cases fridge_data/eval_cases.jsonl --out runs/retrieval_eval`
+- **Command:** `python3 -m recipe_retrieval.cli eval --recipes fridge_data/sample_recipes.jsonl --cases fridge_data/eval_cases_sprint_b.jsonl --out runs/retrieval_eval`
 - **Result summary:**
   - `overlap`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
   - `confidence_weighted`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
   - `penalty_aware`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
-- **Interpretation:** plumbing is correct on the sample set. This is not yet evidence of final real-world quality until I run on the agreed team dataset/eval split.
+- **Interpretation:** plumbing is correct on the expanded sample set, and all rankers are stable. Because the recipe corpus is still very small and curated, this is still not sufficient evidence of final real-world ranking quality.
 
 ### Quality caveat
 - Current metrics are from sample data meant for integration reliability.
 - Final benchmark should be recorded after dataset/vocabulary/detector output are stabilized by the relevant owners.
+- I should expect metric spread between rankers only after moving to a larger, noisier evaluation set.
 
 ---
 
@@ -189,6 +191,7 @@ This section captures team-level deliverables and my current understanding of st
 | 2026-04-26 | Synced my branch with latest `main` and reconciled path changes from `data/` to `fridge_data/` for retrieval samples and docs | `README.md`, `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `recipe_retrieval/integrate.py`, `Martin-work-done.md` |
 | 2026-04-26 | Wired Streamlit demo retrieval path (`get_recipes`) to call the real ranking pipeline with sample corpus + alias fallback | `app.py` |
 | 2026-04-26 | Verified integration quality gate: unit tests pass, retrieval eval CLI runs, and app behavior shows detections + suggested recipes after upload | `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `app.py`, `Martin-work-done.md` |
+| 2026-04-26 | Sprint B evaluation pass: expanded retrieval eval case set and benchmark rerun artifact | `fridge_data/eval_cases_sprint_b.jsonl`, `runs/retrieval_eval/retrieval_eval_20260426T190805Z.json`, `Martin-work-done.md` |
 | 2026-04-22 | Unit tests | `tests/test_retrieval.py` |
 | 2026-04-22 | README instructions for retrieval (and related notes) | `README.md` |
 | 2026-04-22 | Gitignore updates for local eval output and bytecode | `.gitignore` |
