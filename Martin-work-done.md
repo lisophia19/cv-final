@@ -75,12 +75,13 @@ I am organizing my next work into short, reviewable chunks so quality improvemen
    - **Definition of done:** repeatable eval command + saved artifact + short interpretation.
    - **Status update (2026-04-26):** completed on an expanded case file (`fridge_data/eval_cases_sprint_b.jsonl`) and artifact logged.
 
-3. **Sprint C — scoring tuning after dependencies freeze (blocked on others)**
+3. **Sprint C — scoring tuning after dependencies freeze (prepared, then blocked on others)**
    - Tune weighting/penalties after the team finalizes:
      - recipe dataset format/path,
      - alias map,
      - detector naming/threshold behavior.
    - **Definition of done:** stable tuned defaults with measured improvement on agreed eval split.
+   - **Status update (2026-04-26):** prep complete. I added a tuning config surface in CLI so I can run quick, reproducible tuning sweeps as soon as dependencies freeze.
 
 ---
 
@@ -101,6 +102,7 @@ This section tracks retrieval-side measured performance only (my role), so progr
 - Current metrics are from sample data meant for integration reliability.
 - Final benchmark should be recorded after dataset/vocabulary/detector output are stabilized by the relevant owners.
 - I should expect metric spread between rankers only after moving to a larger, noisier evaluation set.
+- I now have a config-driven tuning surface (`--tuning-config`, `--missing-penalty`, `--missing-cap`, `--no-query-weight-norm`) to accelerate post-freeze scoring experiments.
 
 ---
 
@@ -192,6 +194,7 @@ This section captures team-level deliverables and my current understanding of st
 | 2026-04-26 | Wired Streamlit demo retrieval path (`get_recipes`) to call the real ranking pipeline with sample corpus + alias fallback | `app.py` |
 | 2026-04-26 | Verified integration quality gate: unit tests pass, retrieval eval CLI runs, and app behavior shows detections + suggested recipes after upload | `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `app.py`, `Martin-work-done.md` |
 | 2026-04-26 | Sprint B evaluation pass: expanded retrieval eval case set and benchmark rerun artifact | `fridge_data/eval_cases_sprint_b.jsonl`, `runs/retrieval_eval/retrieval_eval_20260426T190805Z.json`, `Martin-work-done.md` |
+| 2026-04-26 | Sprint C prep: added config-driven retrieval tuning surface for fast post-freeze experiments | `recipe_retrieval/cli.py`, `fridge_data/retrieval_tuning_config.example.json`, `tests/test_retrieval.py`, `Martin-work-done.md` |
 | 2026-04-22 | Unit tests | `tests/test_retrieval.py` |
 | 2026-04-22 | README instructions for retrieval (and related notes) | `README.md` |
 | 2026-04-22 | Gitignore updates for local eval output and bytecode | `.gitignore` |

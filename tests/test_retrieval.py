@@ -7,6 +7,7 @@ from recipe_retrieval.corpus import load_recipes_from_jsonl
 from recipe_retrieval.index import RecipeIndex
 from recipe_retrieval.pipeline import build_index_from_paths, retrieve
 from recipe_retrieval.eval import run_ablation, load_eval_cases
+from recipe_retrieval.cli import _build_penalty_config, _load_tuning_config
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE = ROOT / "fridge_data" / "sample_recipes.jsonl"
@@ -98,6 +99,32 @@ class TestRetrieval(unittest.TestCase):
             empty.write_text("", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "Recipe file is empty"):
                 build_index_from_paths([empty])
+
+    def test_load_tuning_config_parses_object(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cfg = Path(td) / "cfg.json"
+            cfg.write_text('{"missing_penalty":0.2,"missing_cap":1.0}', encoding="utf-8")
+            data = _load_tuning_config(str(cfg))
+            self.assertEqual(data["missing_penalty"], 0.2)
+            self.assertEqual(data["missing_cap"], 1.0)
+
+    def test_load_tuning_config_rejects_non_object(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cfg = Path(td) / "cfg.json"
+            cfg.write_text('["not","object"]', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Tuning config must be a JSON object"):
+                _load_tuning_config(str(cfg))
+
+    def test_build_penalty_config_from_args(self) -> None:
+        class Args:
+            missing_penalty = 0.2
+            missing_cap = 0.9
+            no_query_weight_norm = True
+
+        cfg = _build_penalty_config(Args())
+        self.assertEqual(cfg.missing_penalty, 0.2)
+        self.assertEqual(cfg.missing_cap, 0.9)
+        self.assertFalse(cfg.use_query_weight_sum_norm)
 
 
 if __name__ == "__main__":
