@@ -11,10 +11,15 @@ from typing import TypedDict
 
 import streamlit as st
 from PIL import Image
+from recipe_retrieval.integrate import retrieve_with_reconciled_vocab
+from recipe_retrieval.pipeline import build_index_from_paths
+from recipe_retrieval.text import ingredient_key
 from ultralytics import YOLO
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "runs" / "ingredients_yolo11n" / "weights" / "best.pt"
+SAMPLE_RECIPE_PATH = BASE_DIR / "fridge_data" / "sample_recipes.jsonl"
+TEAM_ALIAS_PATH = BASE_DIR / "fridge_data" / "team_ingredient_alias.json"
 CONF_THRESHOLD = 0.25
 
 
@@ -36,6 +41,17 @@ def load_model() -> YOLO:
         st.error(f"Model weights not found at {MODEL_PATH}. Train the YOLO model first.")
         st.stop()
     return YOLO(str(MODEL_PATH))
+
+
+@st.cache_resource
+def load_recipe_index():
+    if not SAMPLE_RECIPE_PATH.exists():
+        st.error(
+            "Recipe sample file not found at "
+            f"{SAMPLE_RECIPE_PATH}. Add a recipe corpus file before running retrieval."
+        )
+        st.stop()
+    return build_index_from_paths([SAMPLE_RECIPE_PATH])
 
 
 def detect_ingredients(model: YOLO, image: Image.Image) -> tuple[list[Ingredient], Image.Image]:
@@ -62,24 +78,38 @@ def detect_ingredients(model: YOLO, image: Image.Image) -> tuple[list[Ingredient
 
 
 def get_recipes(ingredients: list[Ingredient]) -> list[Recipe]:
-    """
-    TODO(member-2): replace with real retrieval against Recipe1M+.
-
-    Expected contract:
-      - input: list of {ingredient: str, confidence: float}
-      - output: ranked list of recipes, best first
-    """
     if not ingredients:
         return []
-    detected_names = [i["ingredient"] for i in ingredients]
-    return [
-        {
-            "title": "[STUB] Recipe retrieval not yet wired in",
-            "matched_ingredients": detected_names,
-            "missing_ingredients": [],
-            "score": 0.0,
-        }
-    ]
+    index = load_recipe_index()
+    result = retrieve_with_reconciled_vocab(
+        ingredients,
+        index=index,
+        ranker="penalty_aware",
+        k=5,
+        alias_path=TEAM_ALIAS_PATH if TEAM_ALIAS_PATH.exists() else None,
+    )
+    detected_keys = {
+        ingredient_key(item.canonical)
+        for item in result.normalized
+        if ingredient_key(item.canonical)
+    }
+    out: list[Recipe] = []
+    for ranked in result.top_k:
+        rec = index.recipes.get(ranked.recipe_id)
+        if rec is None:
+            continue
+        recipe_keys = {ingredient_key(x) for x in rec.ingredients if ingredient_key(x)}
+        matched_keys = sorted(recipe_keys & detected_keys)
+        missing_keys = sorted(recipe_keys - detected_keys)
+        out.append(
+            {
+                "title": rec.title,
+                "matched_ingredients": matched_keys,
+                "missing_ingredients": missing_keys,
+                "score": round(ranked.score, 3),
+            }
+        )
+    return out
 
 
 def main() -> None:
@@ -115,7 +145,12 @@ def main() -> None:
         st.write("No recipes to suggest.")
     else:
         for r in recipes:
-            st.markdown(f"**{r['title']}**  \nScore: {r['score']}  \nMatched: {', '.join(r['matched_ingredients']) or '—'}")
+            st.markdown(
+                f"**{r['title']}**  \n"
+                f"Score: {r['score']}  \n"
+                f"Matched: {', '.join(r['matched_ingredients']) or '—'}  \n"
+                f"Missing: {', '.join(r['missing_ingredients']) or '—'}"
+            )
 
 
 if __name__ == "__main__":
