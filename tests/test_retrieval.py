@@ -1,4 +1,5 @@
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -44,7 +45,6 @@ class TestRetrieval(unittest.TestCase):
 
     def test_cli_eval_json_artifact(self) -> None:
         from recipe_retrieval.eval import write_artifact, run_ablation
-        import tempfile
         idx = build_index_from_paths([SAMPLE])
         cases = load_eval_cases(CASES)
         ab = run_ablation(idx, cases)
@@ -53,6 +53,51 @@ class TestRetrieval(unittest.TestCase):
             j = json.loads(Path(p).read_text(encoding="utf-8"))
             self.assertIn("ablations", j)
             self.assertEqual(len(j["ablations"]), 3)
+
+    def test_retrieve_rejects_non_positive_k(self) -> None:
+        idx = build_index_from_paths([SAMPLE])
+        with self.assertRaisesRegex(ValueError, "k must be a positive integer"):
+            retrieve(
+                [{"ingredient": "chicken", "confidence": 0.9}],
+                index=idx,
+                ranker="penalty_aware",
+                k=0,
+            )
+
+    def test_retrieve_handles_duplicate_and_unknown_ingredients(self) -> None:
+        idx = build_index_from_paths([SAMPLE])
+        res = retrieve(
+            [
+                {"ingredient": "chicken", "confidence": 0.9},
+                {"ingredient": "chicken", "confidence": 0.4},
+                {"ingredient": "unknown_thing", "confidence": 0.8},
+            ],
+            index=idx,
+            ranker="penalty_aware",
+            k=5,
+        )
+        self.assertGreaterEqual(len(res.top_k), 1)
+        # Normalizer should dedupe repeated ingredient canonicals.
+        canonicals = [n.canonical.lower() for n in res.normalized]
+        self.assertEqual(canonicals.count("chicken"), 1)
+
+    def test_build_index_requires_paths(self) -> None:
+        with self.assertRaisesRegex(ValueError, "At least one recipe corpus path is required"):
+            build_index_from_paths([])
+
+    def test_load_recipes_reports_invalid_jsonl_line(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            bad = Path(td) / "bad.jsonl"
+            bad.write_text('{"id":"r1","title":"x","ingredients":["a"]}\n{"id":\n', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Invalid JSON in"):
+                load_recipes_from_jsonl(bad)
+
+    def test_build_index_reports_empty_recipe_file(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            empty = Path(td) / "empty.jsonl"
+            empty.write_text("", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Recipe file is empty"):
+                build_index_from_paths([empty])
 
 
 if __name__ == "__main__":

@@ -102,6 +102,55 @@ This section tracks retrieval-side measured performance only (my role), so progr
 
 ---
 
+## Team role deliverables status (cross-team view)
+
+This section captures team-level deliverables and my current understanding of status/dependencies so planning is explicit.
+
+### Group Members 1 & 3 — Ingredient Detection (Vision Model)
+- **Deliverable:** image -> clean ingredient list with confidence scores.
+  - **Status:** **Partially done** (pipeline produces detections; quality still evolving).
+- **Deliverable:** detection accuracy ownership and iterative model improvements.
+  - **Status:** **In progress**.
+- **Depends on already done:** ingredient dataset, training/inference scripts.
+
+### Group Members 1 & 3 — Data Processing and Normalization
+- **Deliverable:** cleaned, query-ready recipe dataset with stable schema/path.
+  - **Status:** **Not finalized**.
+- **Deliverable:** shared ingredient vocabulary + normalization map across modules.
+  - **Status:** **Not finalized** (my retrieval supports alias-map ingestion when provided).
+- **Depends on already done:** team agreement on canonical ingredient naming and dataset source.
+
+### Group Member 2 (me) — Recipe Retrieval and Ranking
+- **Deliverable:** ranked top-k recipe retrieval from detected ingredient list.
+  - **Status:** **Done (baseline integrated and verified)**.
+- **Deliverable:** multiple ranking strategies + scoring logic tied to overlap/confidence/missing ingredients.
+  - **Status:** **Done**.
+- **Deliverable:** retrieval-side eval and ranker comparison.
+  - **Status:** **Done for baseline/sample set; final pass pending final dataset/vocab/detector freeze**.
+- **Depends on already done:** detection output contract and retrieval integration hook (available).
+
+### Group Member 4 — End-to-End Integration and Demo
+- **Deliverable:** stitched pipeline (image in -> ranked recipes out) with demo interface.
+  - **Status:** **Partially done** (semi-running path now works in app).
+- **Deliverable:** final demo polish and presentation flow.
+  - **Status:** **In progress**.
+- **Depends on already done:** stable module interfaces from detection + retrieval + normalization.
+
+---
+
+## Ordered deliverables by owner
+
+1. **Ingredient detection output contract (ingredient + confidence)** — **Group Members 1 & 3**
+2. **Recipe dataset prepared in agreed schema/path** — **Group Members 1 & 3**
+3. **Shared ingredient alias/vocabulary mapping** — **Group Members 1 & 3**
+4. **Recipe retrieval/ranking engine (top-k + score breakdown)** — **Group Member 2 (me)**
+5. **Retrieval evaluation and ranker benchmark artifacts** — **Group Member 2 (me)**
+6. **End-to-end integration wiring (upload -> detect -> rank -> display)** — **Group Member 4**
+7. **End-to-end validation + demo polish for presentation** — **Group Member 4**
+8. **Final retrieval tuning pass after dependency freeze** — **Group Member 2 (me), dependent on items 2-3 and detector stability**
+
+---
+
 ## Risks I am watching (and what I am doing about them)
 
 - **Name mismatch** between model classes and recipe text is still the biggest product risk. I am counting on a shared alias list and a clear owner for vocabulary so I am not guessing in silo.

@@ -16,7 +16,14 @@ DetectionInput = Union[list[DetectedIngredient], list[dict]]
 
 
 def build_index_from_paths(paths: list[str | Path]) -> RecipeIndex:
+    if not paths:
+        raise ValueError("At least one recipe corpus path is required")
     records = list(iter_recipe_files(list(paths)))
+    if not records:
+        raise ValueError(
+            "No recipe records were loaded from the provided path(s). "
+            "Ensure file format is JSON array or JSONL with recipe objects."
+        )
     return RecipeIndex.build(records)
 
 
@@ -42,6 +49,8 @@ def retrieve(
     """
     Main integration entry: list of detections (or dicts with ingredient/confidence) -> top-k.
     """
+    if k <= 0:
+        raise ValueError("k must be a positive integer")
     if detected and isinstance(detected[0], dict):
         norm_list: list[DetectedIngredient] = [
             DetectedIngredient(ingredient=str(d["ingredient"]), confidence=float(d["confidence"]))

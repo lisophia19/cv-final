@@ -67,7 +67,7 @@ def rank_overlap(
         scored.append(
             RankedRecipe(recipe_id=rid, title=rec.title, score=score, breakdown=br)
         )
-    scored.sort(key=lambda x: x.score, reverse=True)
+    scored.sort(key=lambda x: (x.score, x.title, x.recipe_id), reverse=True)
     return scored[:k]
 
 
@@ -97,7 +97,7 @@ def rank_confidence_weighted(
             terms={"raw_weighted_match": raw, "sum_query_weights": sum_w, "|matched|": float(len(matched))},
         )
         out.append(RankedRecipe(recipe_id=rid, title=rec.title, score=score, breakdown=br))
-    out.sort(key=lambda x: (x.score, x.title), reverse=True)
+    out.sort(key=lambda x: (x.score, x.title, x.recipe_id), reverse=True)
     return out[:k]
 
 
@@ -136,7 +136,10 @@ def rank_penalty_aware(
             details={"missing_keys_sample": list(sorted(missing))[:20]},
         )
         out.append(RankedRecipe(recipe_id=rid, title=rec.title, score=score, breakdown=br))
-    out.sort(key=lambda x: (x.score, -len(index.recipe_ingredient_keys(x.recipe_id))), reverse=True)
+    out.sort(
+        key=lambda x: (x.score, -len(index.recipe_ingredient_keys(x.recipe_id)), x.title, x.recipe_id),
+        reverse=True,
+    )
     return out[:k]
 
 

@@ -38,12 +38,19 @@ def _record_from_dict(d: dict[str, Any]) -> RecipeRecord:
 
 def load_recipes_from_jsonl(path: str | Path) -> list[RecipeRecord]:
     p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Recipe file not found: {p}")
     out: list[RecipeRecord] = []
-    for line in p.read_text(encoding="utf-8").splitlines():
+    for line_no, line in enumerate(p.read_text(encoding="utf-8").splitlines(), start=1):
         line = line.strip()
         if not line:
             continue
-        d = json.loads(line)
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Invalid JSON in {p} at line {line_no}: {exc.msg}"
+            ) from exc
         if not isinstance(d, dict):
             continue
         out.append(_record_from_dict(d))
@@ -52,7 +59,12 @@ def load_recipes_from_jsonl(path: str | Path) -> list[RecipeRecord]:
 
 def load_recipes_from_json_array(path: str | Path) -> list[RecipeRecord]:
     p = Path(path)
-    data = json.loads(p.read_text(encoding="utf-8"))
+    if not p.exists():
+        raise FileNotFoundError(f"Recipe file not found: {p}")
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON array file {p}: {exc.msg}") from exc
     if not isinstance(data, list):
         raise ValueError("JSON array of recipe objects expected")
     return [_record_from_dict(d) for d in data if isinstance(d, dict)]
@@ -60,7 +72,11 @@ def load_recipes_from_json_array(path: str | Path) -> list[RecipeRecord]:
 
 def load_recipes_auto(path: str | Path) -> list[RecipeRecord]:
     p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Recipe file not found: {p}")
     text = p.read_text(encoding="utf-8").strip()
+    if not text:
+        raise ValueError(f"Recipe file is empty: {p}")
     if text.startswith("["):
         return load_recipes_from_json_array(p)
     return load_recipes_from_jsonl(p)
