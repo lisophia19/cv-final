@@ -8,8 +8,8 @@ from recipe_retrieval.pipeline import build_index_from_paths, retrieve
 from recipe_retrieval.eval import run_ablation, load_eval_cases
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLE = ROOT / "data" / "sample_recipes.jsonl"
-CASES = ROOT / "data" / "eval_cases.jsonl"
+SAMPLE = ROOT / "fridge_data" / "sample_recipes.jsonl"
+CASES = ROOT / "fridge_data" / "eval_cases.jsonl"
 
 
 class TestRetrieval(unittest.TestCase):

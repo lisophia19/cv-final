@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-22 (UTC)  
+**Last updated:** 2026-04-26 (UTC)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 **Why I keep this file:** I want anyone on the team (or grading the project) to open one document and understand what I am responsible for, what I have already shipped, what is still open, and what I am waiting on from others. I will update it as my workstream changes.
@@ -40,7 +40,7 @@ Our pipeline is: **photo → list of ingredients → match to recipes → show r
 
 ## Where I am right now
 
-I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My code loads recipe files (JSON/JSONL), builds a search index over recipe ingredients, scores candidates with one of three strategies I implemented (simple overlap; overlap weighted by detector confidence; overlap weighted plus a penalty when the recipe still needs ingredients I did not see), and exposes a small Python API plus a CLI for a quick demo and for ablation runs that write JSON under `runs/retrieval_eval/` when you use the eval command. I documented how to run everything in the project **`README`**, under **“Recipe retrieval and ranking (Martin).”** I also added sample recipes and queries under `data/` so anyone can exercise the pipeline without my private files.
+I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My code loads recipe files (JSON/JSONL), builds a search index over recipe ingredients, scores candidates with one of three strategies I implemented (simple overlap; overlap weighted by detector confidence; overlap weighted plus a penalty when the recipe still needs ingredients I did not see), and exposes a small Python API plus a CLI for a quick demo and for ablation runs that write JSON under `runs/retrieval_eval/` when you use the eval command. I documented how to run everything in the project **`README`**, under **“Recipe retrieval and ranking (Martin).”** I also added sample recipes and queries under `fridge_data/` so anyone can exercise the pipeline without my private files.
 
 **Why this might not be on `main` yet:** I kept my work on a separate branch so I can push to GitHub and iterate without forcing a merge on teammates who told me they are not depending on my code yet. When we are ready, I will open a PR (or whatever process we agree on) to merge into `main`.
 
@@ -71,7 +71,7 @@ I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My
 1. Read **`README.md`** — section **“Recipe retrieval and ranking (Martin).”**  
 2. Open **`recipe_retrieval/pipeline.py`** — `retrieve` is the main call for integration.  
 3. From the repo root, run **`python3 -m unittest discover -s tests -v`**.  
-4. Try a sample run: **`python3 -m recipe_retrieval.cli demo --recipes data/sample_recipes.jsonl --query data/sample_query.json`**
+4. Try a sample run: **`python3 -m recipe_retrieval.cli demo --recipes fridge_data/sample_recipes.jsonl --query fridge_data/sample_query.json`**
 
 ---
 
@@ -92,7 +92,8 @@ I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My
 | 2026-04-22 | CLI: `demo` and `eval` | `recipe_retrieval/cli.py` |
 | 2026-04-22 | Post-freeze integration helper for a team alias file | `recipe_retrieval/integrate.py` |
 | 2026-04-22 | Public exports for the package | `recipe_retrieval/__init__.py` |
-| 2026-04-22 | Sample recipes, eval cases, example query, sample alias file | `data/sample_recipes.jsonl`, `data/eval_cases.jsonl`, `data/sample_query.json`, `data/sample_alias_map.json` |
+| 2026-04-22 | Sample recipes, eval cases, example query, sample alias file | `fridge_data/sample_recipes.jsonl`, `fridge_data/eval_cases.jsonl`, `fridge_data/sample_query.json`, `fridge_data/sample_alias_map.json` |
+| 2026-04-26 | Synced my branch with latest `main` and reconciled path changes from `data/` to `fridge_data/` for retrieval samples and docs | `README.md`, `tests/test_retrieval.py`, `recipe_retrieval/cli.py`, `recipe_retrieval/integrate.py`, `Martin-work-done.md` |
 | 2026-04-22 | Unit tests | `tests/test_retrieval.py` |
 | 2026-04-22 | README instructions for retrieval (and related notes) | `README.md` |
 | 2026-04-22 | Gitignore updates for local eval output and bytecode | `.gitignore` |

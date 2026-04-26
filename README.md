@@ -3,14 +3,14 @@ Fridge food detection for recipe generation.
 
 ## Recipe retrieval and ranking (Martin)
 
-`recipe_retrieval` takes detected ingredients (same shape as `test.py` after deduplication) and returns a ranked list of recipes. Use your own **JSON/JSONL** recipe corpus, or the bundled sample: `data/sample_recipes.jsonl`.
+`recipe_retrieval` takes detected ingredients (same shape as `test.py` after deduplication) and returns a ranked list of recipes. Use your own **JSON/JSONL** recipe corpus, or the bundled sample: `fridge_data/sample_recipes.jsonl`.
 
 **Integration API**
 
 ```python
 from recipe_retrieval import build_index_from_paths, retrieve
 
-index = build_index_from_paths(["data/sample_recipes.jsonl"])
+index = build_index_from_paths(["fridge_data/sample_recipes.jsonl"])
 out = retrieve(
     [{"ingredient": "chicken", "confidence": 0.9}, {"ingredient": "rice", "confidence": 0.8}],
     index=index,
@@ -25,7 +25,7 @@ out = retrieve(
 ```python
 from recipe_retrieval import retrieve_with_reconciled_vocab
 
-# Commit data/team_ingredient_alias.json or pass alias_path=...
+# Commit fridge_data/team_ingredient_alias.json or pass alias_path=...
 out = retrieve_with_reconciled_vocab(detections, index=index, k=5)
 ```
 
@@ -34,14 +34,14 @@ out = retrieve_with_reconciled_vocab(detections, index=index, k=5)
 ```bash
 # Ablation (writes JSON under runs/retrieval_eval/)
 python3 -m recipe_retrieval.cli eval \
-  --recipes data/sample_recipes.jsonl \
-  --cases data/eval_cases.jsonl \
+  --recipes fridge_data/sample_recipes.jsonl \
+  --cases fridge_data/eval_cases.jsonl \
   --out runs/retrieval_eval
 
 # One-off demo
 python3 -m recipe_retrieval.cli demo \
-  --recipes data/sample_recipes.jsonl \
-  --query data/sample_query.json \
+  --recipes fridge_data/sample_recipes.jsonl \
+  --query fridge_data/sample_query.json \
   --ranker penalty_aware
 ```
 

@@ -24,7 +24,7 @@ def main() -> None:
 
     e = sub.add_parser("eval", help="Run ablation and write results under --out")
     e.add_argument("--recipes", required=True, nargs="+", help="Recipe corpus file(s)")
-    e.add_argument("--cases", required=True, help="JSONL eval cases (see data/eval_cases.jsonl)")
+    e.add_argument("--cases", required=True, help="JSONL eval cases (see fridge_data/eval_cases.jsonl)")
     e.add_argument("--out", default="runs/retrieval_eval", help="Output directory for artifacts")
     e.add_argument("-k", type=int, default=5, dest="k_max")
     e.add_argument("--alias", help="optional JSON map for AliasFileNormalizer")
