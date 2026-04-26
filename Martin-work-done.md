@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-26 (UTC, post app integration verification)  
+**Last updated:** 2026-04-26 (UTC, post app integration + sprint planning)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 **Why I keep this file:** I want anyone on the team (or grading the project) to open one document and understand what I am responsible for, what I have already shipped, what is still open, and what I am waiting on from others. I will update it as my workstream changes.
@@ -55,6 +55,50 @@ I have a **working, test-covered baseline** on **`martin/recipe-retrieval`**. My
 | **Vision** | **Stable** detection: thresholds, class names, and a clear contract for what gets sent to me. | I am blocked on vision stabilizing; once it does, I will re-tune ranker weights if needed and re-run evals on our agreed set. |
 | **End-to-end** | Keep validating the semi-running path **image → detect → rank → show** in the target demo environment. | I completed retrieval wiring in `app.py` and verified that upload now updates detections and suggestions. Remaining work is quality tuning with final data/vocabulary. |
 | **Stretch** | Stronger retrieval baselines (for example BM25 or embeddings) if we want extra depth. | I did not prioritize it for the first baseline; I will add it only if the timeline and grading expectations make it worth it. |
+
+---
+
+## Retrieval quality sprint plan (my next focused work)
+
+I am organizing my next work into short, reviewable chunks so quality improvements are clear and measurable.
+
+1. **Sprint A — contract hardening and robustness (high confidence, immediate)**
+   - Add/expand tests for edge inputs (empty detections, duplicate ingredients, low confidence only, unknown tokens).
+   - Ensure retrieval output ordering and tie-breaking are deterministic.
+   - Add clearer error messages for bad recipe files or malformed records.
+   - **Definition of done:** tests pass; no regression in existing retrieval behavior.
+
+2. **Sprint B — retrieval evaluation quality pass (high value, immediate)**
+   - Expand eval cases beyond toy happy-path examples.
+   - Run all baseline rankers against the same case set and store artifacts.
+   - Capture a compact before/after comparison note for tuning changes.
+   - **Definition of done:** repeatable eval command + saved artifact + short interpretation.
+
+3. **Sprint C — scoring tuning after dependencies freeze (blocked on others)**
+   - Tune weighting/penalties after the team finalizes:
+     - recipe dataset format/path,
+     - alias map,
+     - detector naming/threshold behavior.
+   - **Definition of done:** stable tuned defaults with measured improvement on agreed eval split.
+
+---
+
+## Retrieval benchmark snapshot
+
+This section tracks retrieval-side measured performance only (my role), so progress is objective.
+
+### Latest verified run
+- **Date:** 2026-04-26
+- **Command:** `python3 -m recipe_retrieval.cli eval --recipes fridge_data/sample_recipes.jsonl --cases fridge_data/eval_cases.jsonl --out runs/retrieval_eval`
+- **Result summary:**
+  - `overlap`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
+  - `confidence_weighted`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
+  - `penalty_aware`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
+- **Interpretation:** plumbing is correct on the sample set. This is not yet evidence of final real-world quality until I run on the agreed team dataset/eval split.
+
+### Quality caveat
+- Current metrics are from sample data meant for integration reliability.
+- Final benchmark should be recorded after dataset/vocabulary/detector output are stabilized by the relevant owners.
 
 ---
 
