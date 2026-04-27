@@ -1,6 +1,13 @@
 # cv-final
 Fridge food detection for recipe generation.
 
+## Ingredient identification/classification - DINOv2 (Nina)
+
+`dino_test.py`: (file used to get familiar with using pretrained DINOv2 on sample images) loads a pretrained DINOv2 model and uses it to generate embeddings for all images in the data/ directory. It then computes pairwise cosine similarity across all images for ingredient classification.
+
+`dino.ipynb`: (actual DINO pipeline) crops individual ingredients from labeled dataset images using YOLO bounding boxes, extracts DINOv2 embeddings for each crop saved in chunked .npz files, then merges those chunks into a single embeddings file for k-NN classification.
+
+
 ## Recipe retrieval and ranking (Martin)
 
 `recipe_retrieval` takes detected ingredients (same shape as `test.py` after deduplication) and returns a ranked list of recipes. Use your own **JSON/JSONL** recipe corpus, or the bundled sample: `fridge_data/sample_recipes.jsonl`.
