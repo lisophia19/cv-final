@@ -1,0 +1,133 @@
+{
+  "timestamp": "20260428T115458Z",
+  "config": {
+    "model": "runs/ingredients_yolo11n/weights/best.pt",
+    "recipe_corpus": "fridge_data/sample_recipes.jsonl",
+    "conf_threshold": 0.25,
+    "top_k": 5
+  },
+  "aggregate": {
+    "n_images": 5,
+    "mean_precision": 0.3,
+    "mean_recall": 0.082,
+    "mean_f1": 0.127,
+    "top1_rate": 0.2,
+    "top3_rate": 0.2,
+    "top5_rate": 0.2
+  },
+  "per_image": [
+    {
+      "image": "fridge_data/fridge_test1.jpg",
+      "n_true": 6,
+      "n_detected": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 4,
+      "precision": 1.0,
+      "recall": 0.333,
+      "f1": 0.5,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Banana",
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test2.jpg",
+      "n_true": 10,
+      "n_detected": 2,
+      "tp": 0,
+      "fp": 2,
+      "fn": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bell Pepper",
+        "Mushroom"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test3.jpg",
+      "n_true": 11,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bacon"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test4.jpg",
+      "n_true": 13,
+      "n_detected": 2,
+      "tp": 1,
+      "fp": 1,
+      "fn": 12,
+      "precision": 0.5,
+      "recall": 0.077,
+      "f1": 0.133,
+      "top1_match": true,
+      "top3_match": true,
+      "top5_match": true,
+      "detected_ingredients": [
+        "Bacon",
+        "Egg"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test5.jpg",
+      "n_true": 11,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    }
+  ]
+}
