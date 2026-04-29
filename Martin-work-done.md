@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-26 (UTC, rehauled for team handoff clarity)  
+**Last updated:** 2026-04-29 (UTC, post-main-sync E2E baseline+tuning pass)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 ---
@@ -36,6 +36,9 @@
 - Completed Sprint A hardening (input validation, deterministic ordering, edge-case tests).
 - Completed Sprint B evaluation pass with expanded case set.
 - Added Sprint C prep (config-driven tuning surface for quick post-freeze experiments).
+- Synced latest `main`, then ran E2E baseline on team eval set (`eval_data/labels.jsonl`).
+- Added tunable E2E eval controls in `eval_e2e.py` and completed one controlled tuning pass.
+- Added failure-pattern summary to drive concrete team handoffs.
 
 ---
 
@@ -62,12 +65,28 @@ All strategies are fully implemented and working as expected on current sample e
 
 ## Benchmark snapshot (latest)
 
+### Retrieval-only benchmark (sample corpus sanity check)
 - **Command run:** `python3 -m recipe_retrieval.cli eval --recipes fridge_data/sample_recipes.jsonl --cases fridge_data/eval_cases_sprint_b.jsonl --out runs/retrieval_eval`
-- **Latest result summary:**
+- **Result summary:**
   - `overlap`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
   - `confidence_weighted`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
   - `penalty_aware`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
-- **Interpretation:** retrieval plumbing is correct and stable on sample data; these are not final real-world quality numbers yet.
+- **Interpretation:** retrieval plumbing remains stable on curated sample data.
+
+### End-to-end benchmark on team eval set (new, more realistic)
+- **Baseline run command:** `python3 eval_e2e.py --labels eval_data/labels.jsonl --out runs/e2e_eval`
+  - **Baseline metrics:** `mean_f1=0.086`, `top1_rate=0.03`, `top3_rate=0.091`, `top5_rate=0.091`
+  - **Artifact:** `runs/e2e_eval/e2e_eval_20260429T152239Z.json`
+- **Controlled tuning run command:** `python3 eval_e2e.py --labels eval_data/labels.jsonl --out runs/e2e_eval --conf-threshold 0.15 --ranker overlap --top-k 5`
+  - **Tuned metrics:** `mean_f1=0.108`, `top1_rate=0.061`, `top3_rate=0.091`, `top5_rate=0.091`
+  - **Artifact:** `runs/e2e_eval/e2e_eval_20260429T152250Z.json`
+- **Interpretation:** controlled tuning improved detection-side quality and top-1 retrieval hit rate, while top-3/top-5 remained unchanged.
+
+### Failure-pattern summary (from E2E runs)
+- 30/33 cases still miss at top-5 in both runs.
+- Main bottleneck remains upstream detection quality/coverage (many low-F1 or zero-detection cases).
+- Retrieval always returns candidates, but sample recipe corpus is too small/narrow for diverse `reasonable_recipes`.
+- High-frequency detected labels in failed cases (`Tomato`, `Bacon`, `Bell Pepper`) indicate label-space mismatch with recipe coverage and alias vocabulary.
 
 ---
 
@@ -176,9 +195,20 @@ Optional user preference filters in retrieval:
 
 ## Next 7-day action list
 
-1. Get final dataset path/schema from Group Members 1 & 3.
-2. Get finalized alias map from Group Members 1 & 3.
-3. Confirm detector output conventions with vision owners.
-4. Run final tuning sweep using config-driven CLI surface.
-5. Record final benchmark snapshot on agreed dataset split.
-6. Update this doc with final tuned defaults and demo-ready metrics.
+1. Get final dataset path/schema from Group Members 1 & 3 (required before final retrieval tuning).
+2. Get finalized alias map from Group Members 1 & 3 (required to reduce label-vocabulary mismatch).
+3. Confirm detector output conventions with vision owners (required for stable tuning baseline).
+4. Run a broader tuning sweep in `eval_e2e.py` now that tuning flags are available.
+5. Record before/after metrics and top recurring failure buckets for team handoff.
+6. Update this doc with tuned defaults and final demo-ready benchmark notes.
+
+---
+
+## If I need something from the team right now
+
+1. **From Group Members 1 & 3:** final recipe dataset schema/path and alias map draft.
+   - **Reason:** retrieval quality ceiling is currently capped by dataset/label mismatch.
+   - **What comes after:** I rerun tuning and benchmark against that finalized data.
+2. **From vision owners:** confirmation of detector label/threshold conventions for final runs.
+   - **Reason:** prevents tuning to a moving target.
+   - **What comes after:** I lock retrieval defaults and publish final recommendation settings.

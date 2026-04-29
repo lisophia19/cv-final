@@ -1,0 +1,764 @@
+{
+  "timestamp": "20260429T152239Z",
+  "config": {
+    "model": "runs/ingredients_yolo11n/weights/best.pt",
+    "recipe_corpus": "fridge_data/sample_recipes.jsonl",
+    "conf_threshold": 0.25,
+    "top_k": 5,
+    "ranker": "penalty_aware",
+    "missing_penalty": 0.12,
+    "missing_cap": 1.5,
+    "use_query_weight_sum_norm": true
+  },
+  "aggregate": {
+    "n_images": 33,
+    "mean_precision": 0.284,
+    "mean_recall": 0.053,
+    "mean_f1": 0.086,
+    "top1_rate": 0.03,
+    "top3_rate": 0.091,
+    "top5_rate": 0.091
+  },
+  "per_image": [
+    {
+      "image": "fridge_data/fridge_test1.jpg",
+      "n_true": 6,
+      "n_detected": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 4,
+      "precision": 1.0,
+      "recall": 0.333,
+      "f1": 0.5,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Banana",
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test2.jpg",
+      "n_true": 10,
+      "n_detected": 2,
+      "tp": 0,
+      "fp": 2,
+      "fn": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bell Pepper",
+        "Mushroom"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test3.jpg",
+      "n_true": 11,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bacon"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test4.jpg",
+      "n_true": 13,
+      "n_detected": 2,
+      "tp": 1,
+      "fp": 1,
+      "fn": 12,
+      "precision": 0.5,
+      "recall": 0.077,
+      "f1": 0.133,
+      "top1_match": true,
+      "top3_match": true,
+      "top5_match": true,
+      "detected_ingredients": [
+        "Bacon",
+        "Egg"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble"
+      ]
+    },
+    {
+      "image": "fridge_data/fridge_test5.jpg",
+      "n_true": 11,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1536181211993-cf4b2c100475.jpg",
+      "n_true": 2,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1563865436874-9aef32095fad.jpg",
+      "n_true": 10,
+      "n_detected": 5,
+      "tp": 1,
+      "fp": 4,
+      "fn": 9,
+      "precision": 0.2,
+      "recall": 0.1,
+      "f1": 0.133,
+      "top1_match": false,
+      "top3_match": true,
+      "top5_match": true,
+      "detected_ingredients": [
+        "NA",
+        "Tomato",
+        "Soy Chunks",
+        "Egg",
+        "Mushroom"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1606859191214-25806e8e2423.jpg",
+      "n_true": 13,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 13,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1622001545761-9bd12a4b465b.jpg",
+      "n_true": 4,
+      "n_detected": 2,
+      "tp": 0,
+      "fp": 2,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Onion Leaves",
+        "Beaten Rice"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1643494847705-74808059bf07.jpg",
+      "n_true": 7,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 7,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bacon"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1668887466922-5ed4bcd58ceb.jpg",
+      "n_true": 7,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 7,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1695088219482-f7f7b57f7c27.jpg",
+      "n_true": 9,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 9,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Pork"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1704915119312-c0f6ad76def9.jpg",
+      "n_true": 4,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1710947949965-8150d227d337.jpg",
+      "n_true": 4,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bacon"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1737363625030-164e39339156.jpg",
+      "n_true": 8,
+      "n_detected": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 7,
+      "precision": 1.0,
+      "recall": 0.125,
+      "f1": 0.222,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Egg"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1737363625921-dd9e02b4c067.jpg",
+      "n_true": 7,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 7,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1758738880738-8f662ac47e4f.jpg",
+      "n_true": 4,
+      "n_detected": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 3,
+      "precision": 1.0,
+      "recall": 0.25,
+      "f1": 0.4,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Chili Pepper"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1767023027863-9e03d58a0d98.jpg",
+      "n_true": 4,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/photo-1775203304348-bc115948e718.jpg",
+      "n_true": 7,
+      "n_detected": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 6,
+      "precision": 1.0,
+      "recall": 0.143,
+      "f1": 0.25,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Rice"
+      ],
+      "retrieved_recipes": [
+        "Chicken Rice Bowl"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1661375373095-e83281f8a851.jpg",
+      "n_true": 9,
+      "n_detected": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 8,
+      "precision": 1.0,
+      "recall": 0.111,
+      "f1": 0.2,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1670895801174-8278045808f4.jpg",
+      "n_true": 11,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1701006579559-49cf5d1a0b7a.jpg",
+      "n_true": 10,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Soy Chunks"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1733870973450-7fee867affe6.jpg",
+      "n_true": 13,
+      "n_detected": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 11,
+      "precision": 1.0,
+      "recall": 0.154,
+      "f1": 0.267,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bell Pepper",
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1733870973452-4ac5988c1124.jpg",
+      "n_true": 12,
+      "n_detected": 3,
+      "tp": 1,
+      "fp": 2,
+      "fn": 11,
+      "precision": 0.333,
+      "recall": 0.083,
+      "f1": 0.133,
+      "top1_match": false,
+      "top3_match": true,
+      "top5_match": true,
+      "detected_ingredients": [
+        "Turnip",
+        "Noodles",
+        "Banana"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1733870973456-823b8f91e784.jpg",
+      "n_true": 12,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 12,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Garden Peas"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1733870973458-1c9341932a80.jpg",
+      "n_true": 16,
+      "n_detected": 1,
+      "tp": 1,
+      "fp": 0,
+      "fn": 15,
+      "precision": 1.0,
+      "recall": 0.062,
+      "f1": 0.118,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1734203623842-3069b3ca50e5.jpg",
+      "n_true": 13,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 13,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1734646975674-64764e7dc70d.jpg",
+      "n_true": 9,
+      "n_detected": 1,
+      "tp": 0,
+      "fp": 1,
+      "fn": 9,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Bacon"
+      ],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1736295087885-3558b6194fe9.jpg",
+      "n_true": 5,
+      "n_detected": 2,
+      "tp": 0,
+      "fp": 2,
+      "fn": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Tomato",
+        "Coriander"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1736295087902-6464b4df43e6.jpg",
+      "n_true": 10,
+      "n_detected": 3,
+      "tp": 1,
+      "fp": 2,
+      "fn": 9,
+      "precision": 0.333,
+      "recall": 0.1,
+      "f1": 0.154,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Coriander",
+        "Turnip",
+        "Tomato"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1736295088100-9c6a8fe67fcd.jpg",
+      "n_true": 16,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 16,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1736489868024-d72bfeea35d6.jpg",
+      "n_true": 10,
+      "n_detected": 2,
+      "tp": 2,
+      "fp": 0,
+      "fn": 8,
+      "precision": 1.0,
+      "recall": 0.2,
+      "f1": 0.333,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [
+        "Tomato",
+        "Bell Pepper"
+      ],
+      "retrieved_recipes": [
+        "Simple Tomato Salad"
+      ]
+    },
+    {
+      "image": "eval_data/images/premium_photo-1736489868029-4ac123279175.jpg",
+      "n_true": 23,
+      "n_detected": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 23,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "top1_match": false,
+      "top3_match": false,
+      "top5_match": false,
+      "detected_ingredients": [],
+      "retrieved_recipes": [
+        "Spinach Egg Scramble",
+        "Simple Tomato Salad",
+        "Avocado Toast",
+        "Chicken Rice Bowl",
+        "Beef Stir Fry"
+      ]
+    }
+  ]
+}

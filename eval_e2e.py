@@ -24,6 +24,7 @@ from ultralytics import YOLO
 
 from recipe_retrieval.integrate import retrieve_with_reconciled_vocab
 from recipe_retrieval.pipeline import build_index_from_paths
+from recipe_retrieval.rankers import PenaltyConfig
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_LABELS = BASE_DIR / "eval_data" / "labels.jsonl"
@@ -31,8 +32,8 @@ DEFAULT_OUT_DIR = BASE_DIR / "runs" / "e2e_eval"
 MODEL_PATH = BASE_DIR / "runs" / "ingredients_yolo11n" / "weights" / "best.pt"
 RECIPE_PATH = BASE_DIR / "fridge_data" / "sample_recipes.jsonl"
 ALIAS_PATH = BASE_DIR / "fridge_data" / "team_ingredient_alias.json"
-CONF_THRESHOLD = 0.25
-TOP_K = 5
+DEFAULT_CONF_THRESHOLD = 0.25
+DEFAULT_TOP_K = 5
 
 
 def normalize(s: str) -> str:
@@ -73,12 +74,23 @@ def recipe_match(retrieved_titles: list[str], reasonable: list[str], k: int) -> 
     return False
 
 
-def evaluate_one(model: YOLO, index, image_path: Path, true_ingredients: list[str], reasonable_recipes: list[str]) -> dict | None:
+def evaluate_one(
+    model: YOLO,
+    index,
+    image_path: Path,
+    true_ingredients: list[str],
+    reasonable_recipes: list[str],
+    *,
+    conf_threshold: float,
+    top_k: int,
+    ranker: str,
+    penalty_config: PenaltyConfig,
+) -> dict | None:
     if not image_path.exists():
         return None
 
     img = Image.open(image_path).convert("RGB")
-    results = model.predict(source=img, conf=CONF_THRESHOLD, save=False, verbose=False)
+    results = model.predict(source=img, conf=conf_threshold, save=False, verbose=False)
     result = results[0]
 
     best: dict[str, float] = {}
@@ -102,9 +114,10 @@ def evaluate_one(model: YOLO, index, image_path: Path, true_ingredients: list[st
     retrieval = retrieve_with_reconciled_vocab(
         detected_with_conf,
         index=index,
-        ranker="penalty_aware",
-        k=TOP_K,
+        ranker=ranker,
+        k=top_k,
         alias_path=ALIAS_PATH if ALIAS_PATH.exists() else None,
+        penalty_config=penalty_config,
     )
 
     retrieved_titles: list[str] = []
@@ -135,6 +148,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="End-to-end pipeline evaluation")
     parser.add_argument("--labels", type=Path, default=DEFAULT_LABELS, help="Path to labels.jsonl")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT_DIR, help="Output directory for results")
+    parser.add_argument("--ranker", default="penalty_aware", help="ranker to use for retrieval")
+    parser.add_argument("--top-k", type=int, default=DEFAULT_TOP_K, help="retrieval cutoff for suggestions")
+    parser.add_argument("--conf-threshold", type=float, default=DEFAULT_CONF_THRESHOLD, help="YOLO confidence threshold")
+    parser.add_argument("--missing-penalty", type=float, default=0.12, help="penalty per missing ingredient")
+    parser.add_argument("--missing-cap", type=float, default=1.5, help="maximum total missing penalty")
+    parser.add_argument(
+        "--no-query-weight-norm",
+        action="store_true",
+        help="disable confidence-weight normalization in weighted rankers",
+    )
     args = parser.parse_args()
 
     if not args.labels.exists():
@@ -158,11 +181,26 @@ def main() -> None:
             cases.append(json.loads(line))
 
     print(f"Evaluating {len(cases)} cases\n")
+    penalty_cfg = PenaltyConfig(
+        missing_penalty=args.missing_penalty,
+        missing_cap=args.missing_cap,
+        use_query_weight_sum_norm=(not args.no_query_weight_norm),
+    )
 
     per_image: list[dict] = []
     for case in cases:
         image_path = (BASE_DIR / case["image"]).resolve()
-        result = evaluate_one(model, index, image_path, case["true_ingredients"], case["reasonable_recipes"])
+        result = evaluate_one(
+            model,
+            index,
+            image_path,
+            case["true_ingredients"],
+            case["reasonable_recipes"],
+            conf_threshold=args.conf_threshold,
+            top_k=args.top_k,
+            ranker=args.ranker,
+            penalty_config=penalty_cfg,
+        )
         if result is None:
             print(f"  SKIP (image not found): {case['image']}")
             continue
@@ -202,8 +240,12 @@ def main() -> None:
                 "config": {
                     "model": str(MODEL_PATH.relative_to(BASE_DIR)),
                     "recipe_corpus": str(RECIPE_PATH.relative_to(BASE_DIR)),
-                    "conf_threshold": CONF_THRESHOLD,
-                    "top_k": TOP_K,
+                    "conf_threshold": args.conf_threshold,
+                    "top_k": args.top_k,
+                    "ranker": args.ranker,
+                    "missing_penalty": args.missing_penalty,
+                    "missing_cap": args.missing_cap,
+                    "use_query_weight_sum_norm": not args.no_query_weight_norm,
                 },
                 "aggregate": aggregate,
                 "per_image": per_image,
