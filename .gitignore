@@ -1,5 +1,7 @@
 # Retrieval eval artifacts
 runs/retrieval_eval/
+runs/
+logs/
 
 # Local env
 .venv/
