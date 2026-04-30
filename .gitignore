@@ -1,4 +1,10 @@
+# Retrieval eval artifacts
+runs/retrieval_eval/
+
+# Local env
 .venv/
-.env
-logs/
-runs/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

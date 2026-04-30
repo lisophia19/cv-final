@@ -1,0 +1,5 @@
+[
+  {"ingredient": "chicken", "confidence": 0.91},
+  {"ingredient": "rice", "confidence": 0.8},
+  {"ingredient": "onion", "confidence": 0.65}
+]

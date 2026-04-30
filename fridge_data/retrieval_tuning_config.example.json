@@ -1,0 +1,7 @@
+{
+  "ranker": "penalty_aware",
+  "rankers": ["overlap", "confidence_weighted", "penalty_aware"],
+  "missing_penalty": 0.12,
+  "missing_cap": 1.5,
+  "use_query_weight_sum_norm": true
+}

@@ -1,0 +1,10 @@
+{"case_id": "sb1", "gold_recipe_ids": ["r2"], "detected": [{"ingredient": "chicken", "confidence": 0.92}, {"ingredient": "rice", "confidence": 0.85}, {"ingredient": "onion", "confidence": 0.7}]}
+{"case_id": "sb2", "gold_recipe_ids": ["r3"], "detected": [{"ingredient": "avocado", "confidence": 0.88}, {"ingredient": "bread", "confidence": 0.75}]}
+{"case_id": "sb3", "gold_recipe_ids": ["r1"], "detected": [{"ingredient": "tomato", "confidence": 0.9}, {"ingredient": "olive oil", "confidence": 0.62}]}
+{"case_id": "sb4", "gold_recipe_ids": ["r5"], "detected": [{"ingredient": "beef", "confidence": 0.86}, {"ingredient": "broccoli", "confidence": 0.6}]}
+{"case_id": "sb5", "gold_recipe_ids": ["r4"], "detected": [{"ingredient": "spinach", "confidence": 0.81}, {"ingredient": "egg", "confidence": 0.77}]}
+{"case_id": "sb6", "gold_recipe_ids": ["r2"], "detected": [{"ingredient": "rice", "confidence": 0.74}, {"ingredient": "chicken", "confidence": 0.69}, {"ingredient": "garlic", "confidence": 0.5}]}
+{"case_id": "sb7", "gold_recipe_ids": ["r1"], "detected": [{"ingredient": "tomato", "confidence": 0.73}, {"ingredient": "salt", "confidence": 0.58}, {"ingredient": "pepper", "confidence": 0.41}]}
+{"case_id": "sb8", "gold_recipe_ids": ["r5"], "detected": [{"ingredient": "beef", "confidence": 0.8}, {"ingredient": "garlic", "confidence": 0.66}, {"ingredient": "ginger", "confidence": 0.63}]}
+{"case_id": "sb9", "gold_recipe_ids": ["r3"], "detected": [{"ingredient": "avocado", "confidence": 0.66}, {"ingredient": "tomato", "confidence": 0.65}, {"ingredient": "bread", "confidence": 0.55}]}
+{"case_id": "sb10", "gold_recipe_ids": ["r2"], "detected": [{"ingredient": "chicken", "confidence": 0.71}, {"ingredient": "soy sauce", "confidence": 0.53}, {"ingredient": "onion", "confidence": 0.48}]}
