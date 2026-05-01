@@ -2,8 +2,8 @@
 DINOv2 attention-based bounding box detector.
 
 Uses self-supervised attention maps from DINOv2 to discover object regions
-without supervision, then converts the attention map to bounding boxes via
-quantile thresholding + connected-component labeling.
+without supervision then converts the attention map to bounding boxes via
+quantile thresholding and connected-component labeling.
 
 Usage:
     python dino_detect.py fridge_data/fridge_test1.jpg
@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent
 MODEL_NAME = "facebook/dinov2-base"
 DEFAULT_OUT_DIR = BASE_DIR / "runs" / "dino_detect"
 PATCH_SIZE = 14
-INPUT_SIZE = 448  # multiple of 14 -> 32x32 patch grid
+INPUT_SIZE = 448 
 DEFAULT_THRESHOLD = 0.6
 MIN_BOX_AREA_FRACTION = 0.005
 MAX_BOX_AREA_FRACTION = 0.7
@@ -43,7 +43,7 @@ def load_model(device: str = "cpu"):
 
 
 def preprocess(image: Image.Image, size: int = INPUT_SIZE) -> torch.Tensor:
-    """Resize to size x size and ImageNet-normalize. Returns (1, 3, size, size)."""
+    """Resizes to size x size and ImageNet-normalize. Returns (1, 3, size, size)."""
     image_resized = image.resize((size, size), Image.BICUBIC)
     arr = np.array(image_resized).astype(np.float32) / 255.0
     tensor = torch.from_numpy(arr).permute(2, 0, 1)
@@ -60,9 +60,9 @@ def get_attention_map(model, image_tensor: torch.Tensor, layer: int = -1) -> np.
     with torch.no_grad():
         outputs = model(pixel_values=image_tensor, output_attentions=True)
 
-    attn = outputs.attentions[layer][0]   # (n_heads, seq_len, seq_len)
-    cls_to_patch = attn[:, 0, 1:]      # (n_heads, n_patches)
-    cls_to_patch = cls_to_patch.mean(dim=0)  # (n_patches,)
+    attn = outputs.attentions[layer][0]  
+    cls_to_patch = attn[:, 0, 1:]     
+    cls_to_patch = cls_to_patch.mean(dim=0)  
 
     n_patches = cls_to_patch.shape[0]
     grid = int(np.sqrt(n_patches))
@@ -95,7 +95,7 @@ def attention_to_boxes(attn_map, image_size, quantile_threshold,
 
 
 def visualize(image, boxes, attn_map, out_path):
-    """Save a 3-panel visualization: original | heatmap overlay | drawn boxes."""
+    """Saves a 3-panel visualization: original | heatmap overlay | drawn boxes."""
     img_np = np.array(image)
 
     attn_norm = (attn_map - attn_map.min()) / (attn_map.max() - attn_map.min() + 1e-8)
