@@ -1,11 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=dinov2
-#SBATCH --output=out.txt
-#SBATCH --error=err.txt
-#SBATCH --time=02:00:00
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
+#SBATCH --job-name=dino_train
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --time=08:00:00
+#SBATCH --output=dino_train.out
+#SBATCH --error=dino_train.err
 
-uv run python temp.py
+python temp3.py
 
-echo "Finished running temp.py"
+echo "Finished running temp3.py"
