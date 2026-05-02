@@ -113,7 +113,7 @@ def detect_and_classify(
     layer: int = -1,
     device: str = "cpu",
 ) -> tuple[list[Detection], np.ndarray]:
-    """Full pipeline: image -> list[Detection] and a 2D heatmap/mask for visualization."""
+    """Full pipeline: image -> list[Detection] and a 2D heatmap for visualization."""
     H, W = image.size[1], image.size[0]
     image_tensor = preprocess_for_detect(image).to(device)
 
