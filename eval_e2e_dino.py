@@ -1,8 +1,8 @@
 """
 End-to-end evaluation script for the FULL DINO pipeline (TokenCut + LoRA classifier).
 
-Sibling to eval_e2e.py. Same evaluation methodology (substring-match per-ingredient
-precision/recall/F1, top-k recipe match), but uses dino_pipeline.detect_and_classify
+Same evaluation methodology (substring-match per-ingredient
+precision/recall/F1, top-k recipe match) as  eval_e2e.py, but uses dino_pipeline.detect_and_classify
 in place of YOLO.
 
 Usage:
@@ -62,7 +62,7 @@ def ingredient_match(detected: list[str], true: list[str]) -> tuple[int, int, in
 
 
 def recipe_match(retrieved_titles: list[str], reasonable: list[str], k: int) -> bool:
-    """Does any of the top-k retrieved recipes match a reasonable recipe (substring, either direction)?"""
+    """Checks if any of the top-k retrieved recipes match a reasonable recipe."""
     reasonable_lower = [normalize(r) for r in reasonable]
     for title in retrieved_titles[:k]:
         title_lower = normalize(title)
@@ -93,7 +93,6 @@ def evaluate_one(
         method="tokencut", device=device,
     )
 
-    # Dedup ingredients by max confidence
     best: dict[str, float] = {}
     for d in detections:
         if d.ingredient not in best or d.confidence > best[d.ingredient]:
