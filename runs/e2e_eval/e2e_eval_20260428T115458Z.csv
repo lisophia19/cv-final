@@ -1,6 +1,0 @@
-image,n_true,n_detected,tp,fp,fn,precision,recall,f1,top1_match,top3_match,top5_match
-fridge_data/fridge_test1.jpg,6,2,2,0,4,1.0,0.333,0.5,False,False,False
-fridge_data/fridge_test2.jpg,10,2,0,2,10,0.0,0.0,0.0,False,False,False
-fridge_data/fridge_test3.jpg,11,1,0,1,11,0.0,0.0,0.0,False,False,False
-fridge_data/fridge_test4.jpg,13,2,1,1,12,0.5,0.077,0.133,True,True,True
-fridge_data/fridge_test5.jpg,11,0,0,0,11,0.0,0.0,0.0,False,False,False
