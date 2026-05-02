@@ -133,12 +133,12 @@ def test_model(model, dataset_path, output_dir="runs/dino_input", conf=0.25, iou
             )
 
         ingredient_list = [
-            {"ingredient": cls, "confidence": round(conf, 3)} for cls, conf in best_pred_ingredient.items()
+            {"ingredient": cls, "confidence": round(conf, 3)} for cls, conf in best_pred_per_ingredient.items()
         ]
         print(f"{Path(result.path).name}: {ingredient_list}")
 
     print(f"Prepared {len(detections_for_dino)} crops for DINO under {output_root / 'predictions'}")
-    #return detections_for_dino
+    return detections_for_dino
 
 
 def inference_sweep(model, data_yaml="ingredients_data/data.yaml"):
@@ -155,7 +155,9 @@ def main():
     base_dir = Path(__file__).resolve().parent
 
     # Inference / crop export path for DINO integration.
-    model = YOLO(str(base_dir / "runs" / "ingredients_tune11n" / "weights" / "best.pt"))
+    # model = YOLO(str(base_dir / "runs" / "ingredients_tune11n" / "weights" / "best.pt"))
+    model = YOLO(str(base_dir / "runs" / "ingredients_yolo11n" / "weights" / "best.pt"))
+
     test_model(model, dataset_path="fridge_data")
 
     # Optional evaluation sweep:
