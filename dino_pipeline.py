@@ -57,6 +57,20 @@ class Detection:
     confidence: float
 
 
+def dedupe_by_class(detections: list[Detection]) -> list[Detection]:
+    """Keep the highest-confidence detection per ingredient name.
+
+    TokenCut often produces multiple, overlapping boxes that the classifier labels as the
+    same class. This collapses them to one detection per class so the eval and demo aren't
+    double-counting the same prediction.
+    """
+    best_per_class: dict[str, Detection] = {}
+    for d in detections:
+        if d.ingredient not in best_per_class or d.confidence > best_per_class[d.ingredient].confidence:
+            best_per_class[d.ingredient] = d
+    return sorted(best_per_class.values(), key=lambda d: -d.confidence)
+
+
 def load_classifier(device: str = "cpu"):
     """Load Nina's DINOv2, LoRA, and linear-classifier stack."""
     backbone = AutoModel.from_pretrained(MODEL_NAME).to(device)
@@ -111,6 +125,7 @@ def detect_and_classify(
     max_objects: int = DEFAULT_TOKENCUT_MAX_OBJECTS,
     max_area_fraction: float = MAX_BOX_AREA_FRACTION,
     layer: int = -1,
+    dedupe: bool = True,
     device: str = "cpu",
 ) -> tuple[list[Detection], np.ndarray]:
     """Full pipeline: image -> list[Detection] and a 2D heatmap for visualization."""
@@ -125,7 +140,7 @@ def detect_and_classify(
             min_area_fraction=MIN_BOX_AREA_FRACTION,
             max_area_fraction=max_area_fraction,
         )
-    else:  # tokencut
+    else:  # tokencut is used 
         features = get_patch_features(detector, image_tensor)
         n_patches = features.shape[0]
         grid_size = int(np.sqrt(n_patches))
@@ -148,6 +163,9 @@ def detect_and_classify(
             crop, backbone, classifier, processor, class_names, device
         )
         detections.append(Detection(box=box, ingredient=ingredient, confidence=confidence))
+
+    if dedupe:
+        detections = dedupe_by_class(detections)
 
     return detections, viz_map
 
@@ -188,6 +206,8 @@ def main() -> None:
     parser.add_argument("--max-objects", type=int, default=DEFAULT_TOKENCUT_MAX_OBJECTS)
     parser.add_argument("--max-area-fraction", type=float, default=MAX_BOX_AREA_FRACTION)
     parser.add_argument("--layer", type=int, default=-1)
+    parser.add_argument("--no-dedupe", action="store_true",
+                        help="Disable class-aware deduplication (default: enabled).")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     args = parser.parse_args()
@@ -211,12 +231,13 @@ def main() -> None:
     image = Image.open(args.image).convert("RGB")
     print(f"Image size: {image.size}")
 
-    print(f"Running pipeline (method={args.method})...")
+    dedupe = not args.no_dedupe
+    print(f"Running pipeline (method={args.method}, dedupe_by_class={dedupe})...")
     detections, viz_map = detect_and_classify(
         image, detector, backbone, classifier, processor, class_names,
         method=args.method, threshold=args.threshold, tau=args.tau,
         max_objects=args.max_objects, max_area_fraction=args.max_area_fraction,
-        layer=args.layer, device=args.device,
+        layer=args.layer, dedupe=dedupe, device=args.device,
     )
 
     print(f"Found {len(detections)} detections:")

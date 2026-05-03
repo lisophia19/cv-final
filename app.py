@@ -1,6 +1,9 @@
 """
 Streamlit demo for the vision recipe recommender pipeline.
 
+Uses the full DINO pipeline (TokenCut detection + DINOv2 + LoRA classification)
+plus Martin's recipe retrieval module.
+
 Run with:
     streamlit run app.py
 from inside the cv-final directory.
@@ -9,18 +12,21 @@ from inside the cv-final directory.
 from pathlib import Path
 from typing import TypedDict
 
+import cv2
+import numpy as np
 import streamlit as st
 from PIL import Image
+
+from dino_detect import load_model as load_detector
+from dino_pipeline import detect_and_classify, load_classifier
 from recipe_retrieval.integrate import retrieve_with_reconciled_vocab
 from recipe_retrieval.pipeline import build_index_from_paths
 from recipe_retrieval.text import ingredient_key
-from ultralytics import YOLO
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / "runs" / "ingredients_yolo11n" / "weights" / "best.pt"
 SAMPLE_RECIPE_PATH = BASE_DIR / "fridge_data" / "sample_recipes.jsonl"
 TEAM_ALIAS_PATH = BASE_DIR / "fridge_data" / "team_ingredient_alias.json"
-CONF_THRESHOLD = 0.25
+CONFIDENCE_THRESHOLD = 0.5  # drop classifier predictions below this
 
 
 class Ingredient(TypedDict):
@@ -36,11 +42,11 @@ class Recipe(TypedDict):
 
 
 @st.cache_resource
-def load_model() -> YOLO:
-    if not MODEL_PATH.exists():
-        st.error(f"Model weights not found at {MODEL_PATH}. Train the YOLO model first.")
-        st.stop()
-    return YOLO(str(MODEL_PATH))
+def load_models():
+    """Load DINO detector and DINOv2 + LoRA classifier (cached)."""
+    detector = load_detector("cpu")
+    backbone, classifier, processor, class_names = load_classifier("cpu")
+    return detector, backbone, classifier, processor, class_names
 
 
 @st.cache_resource
@@ -54,26 +60,37 @@ def load_recipe_index():
     return build_index_from_paths([SAMPLE_RECIPE_PATH])
 
 
-def detect_ingredients(model: YOLO, image: Image.Image) -> tuple[list[Ingredient], Image.Image]:
-    """Run YOLO detection and return deduped ingredient list + annotated image."""
-    results = model.predict(source=image, conf=CONF_THRESHOLD, save=False, verbose=False)
-    result = results[0]
+def detect_ingredients(models, image: Image.Image) -> tuple[list[Ingredient], Image.Image]:
+    """Run the DINO pipeline. Returns deduped ingredient list + annotated image."""
+    detector, backbone, classifier, processor, class_names = models
+    detections, _ = detect_and_classify(
+        image, detector, backbone, classifier, processor, class_names,
+        method="tokencut", device="cpu",
+    )
 
-    best_per_ingredient: dict[str, float] = {}
-    for box in result.boxes:
-        class_id = int(box.cls.item())
-        name = model.names[class_id]
-        confidence = float(box.conf.item())
-        if name not in best_per_ingredient or confidence > best_per_ingredient[name]:
-            best_per_ingredient[name] = confidence
+    # Filter low-confidence; dedup by max confidence per ingredient (keep best box)
+    best_conf: dict[str, float] = {}
+    best_box: dict[str, tuple[int, int, int, int]] = {}
+    for d in detections:
+        if d.confidence < CONFIDENCE_THRESHOLD:
+            continue
+        if d.ingredient not in best_conf or d.confidence > best_conf[d.ingredient]:
+            best_conf[d.ingredient] = d.confidence
+            best_box[d.ingredient] = d.box
 
     ingredients: list[Ingredient] = [
         {"ingredient": name, "confidence": round(conf, 3)}
-        for name, conf in sorted(best_per_ingredient.items(), key=lambda kv: -kv[1])
+        for name, conf in sorted(best_conf.items(), key=lambda kv: -kv[1])
     ]
 
-    annotated_array = result.plot()  # BGR numpy array with boxes drawn
-    annotated_image = Image.fromarray(annotated_array[..., ::-1])  # BGR -> RGB
+    img_np = np.array(image).copy()
+    for name, box in best_box.items():
+        x, y, w, h = box
+        label = f"{name} {best_conf[name]:.2f}"
+        cv2.rectangle(img_np, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        cv2.putText(img_np, label, (x, max(y - 8, 14)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    annotated_image = Image.fromarray(img_np)
     return ingredients, annotated_image
 
 
@@ -123,10 +140,12 @@ def main() -> None:
         return
 
     image = Image.open(uploaded).convert("RGB")
-    model = load_model()
 
-    with st.spinner("Detecting ingredients..."):
-        ingredients, annotated = detect_ingredients(model, image)
+    with st.spinner("Loading DINO models (one-time)..."):
+        models = load_models()
+
+    with st.spinner("Detecting ingredients (DINO pipeline, ~30s on CPU)..."):
+        ingredients, annotated = detect_ingredients(models, image)
 
     left, right = st.columns(2)
     with left:
@@ -135,7 +154,7 @@ def main() -> None:
     with right:
         st.subheader("Ingredients")
         if not ingredients:
-            st.warning("No ingredients detected above the confidence threshold.")
+            st.warning("No high-confidence ingredients detected.")
         else:
             st.table(ingredients)
 
