@@ -1,4 +1,12 @@
 image_stem,crop_file,dino_label,dino_conf
+fridge_test1,fridge_test1_0.jpg,Broccoli,0.9999
+fridge_test1,fridge_test1_1.jpg,Tomato,1.0
+fridge_test1,fridge_test1_2.jpg,Tomato,1.0
+fridge_test1,fridge_test1_3.jpg,Taro Root,0.5876
+fridge_test1,fridge_test1_4.jpg,Tomato,1.0
+fridge_test2,fridge_test2_0.jpg,Egg,1.0
+fridge_test4,fridge_test4_0.jpg,Bell Pepper,1.0
+fridge_test5,fridge_test5_0.jpg,Broccoli,0.9991
 photo-1536181211993-cf4b2c100475,photo-1536181211993-cf4b2c100475_0.jpg,Taro Root,0.3378
 photo-1563865436874-9aef32095fad,photo-1563865436874-9aef32095fad_0.jpg,Carrot,0.9541
 photo-1563865436874-9aef32095fad,photo-1563865436874-9aef32095fad_1.jpg,Papaya,0.8423

@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 
 import cv2
@@ -31,7 +32,7 @@ def train_model():
     train_cfg = {
         "model": "yolo11n.pt",
         "epochs": 50,
-        "imgsz": 700,
+        "imgsz": 900,
         "batch": 16,
         "patience": 25,
         "optimizer": "AdamW",
@@ -74,6 +75,8 @@ def test_model(model, dataset_path, conf=0.25, iou=0.6):
 
     output_root = REPO_ROOT / "yolo" / "runs" / "eval" #clean this up maybe
     crops_root = output_root / "crops"
+    if crops_root.exists():
+        shutil.rmtree(crops_root)
     crops_root.mkdir(parents=True, exist_ok=True)
 
     results = model.predict(
@@ -173,9 +176,10 @@ def classification_accuracy(pred_ingredients, actual_ingredients):
     total_tp = total_fp = total_fn = 0
 
     for image_name, preds in pred_ingredients.items():
-        #make sure both are the all lowercase
         pred_set = {p["ingredient"].lower() for p in preds}
-        true_set = set(actual_ingredients.get(image_name, []).lower())
+        print(f"Predicted set: {pred_set}")
+        true_set = set(i.lower() for i in actual_ingredients.get(image_name, []))
+        print(f"True set: {true_set}")
 
         tp = len(pred_set & true_set)
         fp = len(pred_set - true_set)
@@ -197,18 +201,18 @@ def classification_accuracy(pred_ingredients, actual_ingredients):
         total_fp += fp
         total_fn += fn
 
-    micro_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) else 0.0
-    micro_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) else 0.0
-    micro_f1 = (
-        2 * micro_precision * micro_recall / (micro_precision + micro_recall)
-        if (micro_precision + micro_recall)
+    global_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) else 0.0
+    global_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) else 0.0
+    global_f1 = (
+        2 * global_precision * global_recall / (global_precision + global_recall)
+        if (global_precision + global_recall)
         else 0.0
     )
 
     summary = {
-        "micro_precision": round(micro_precision, 4),
-        "micro_recall": round(micro_recall, 4),
-        "micro_f1": round(micro_f1, 4),
+        "global_precision": round(global_precision, 4),
+        "global_recall": round(global_recall, 4),
+        "global_f1": round(global_f1, 4),
         "images_evaluated": len(per_image),
     }
 
