@@ -72,7 +72,7 @@ def dedupe_by_class(detections: list[Detection]) -> list[Detection]:
 
 
 def load_classifier(device: str = "cpu"):
-    """Load Nina's DINOv2, LoRA, and linear-classifier stack."""
+    """Loads Nina's DINOv2, LoRA, and linear-classifier stack."""
     backbone = AutoModel.from_pretrained(MODEL_NAME).to(device)
     backbone = PeftModel.from_pretrained(backbone, str(LORA_ADAPTER_DIR)).to(device)
     backbone.eval()
@@ -102,7 +102,7 @@ def classify_crop(
     class_names: list[str],
     device: str = "cpu",
 ) -> tuple[str, float]:
-    """Classify one image crop. Returns (ingredient, confidence)."""
+    """Classifies one image crop. Returns (ingredient, confidence)."""
     pixel_values = processor(images=crop, return_tensors="pt")["pixel_values"].to(device)
     with torch.no_grad():
         emb = backbone(pixel_values=pixel_values).last_hidden_state[:, 0, :]

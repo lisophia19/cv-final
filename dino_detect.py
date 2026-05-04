@@ -2,12 +2,13 @@
 DINOv2-based unsupervised object detection.
 
 Two methods:
-  - threshold: quantile-threshold the [CLS]->patch attention map; bounding
+  - threshold: quantile-threshold the [CLS]->patch attention map, bounding
     boxes from connected components.
   - tokencut: spectral graph partitioning on patch features (Wang et al. 2022,
     "Self-Supervised Transformers for Unsupervised Object Discovery using
     Normalized Cut"). Iteratively bipartitions the patch graph to discover
-    multiple foreground objects
+    multiple foreground objects, implemented as an improvement over the
+    attention thresholding approach 
 
 Usage:
     python dino_detect.py fridge_data/fridge_test1.jpg
@@ -65,15 +66,14 @@ def get_patch_features(model, image_tensor: torch.Tensor) -> np.ndarray:
     """
     with torch.no_grad():
         outputs = model(pixel_values=image_tensor)
-    # last_hidden_state: (1, seq_len, hidden_dim); index 0 is [CLS]
     return outputs.last_hidden_state[0, 1:].cpu().numpy()
 
 
 def get_attention_map(model, image_tensor: torch.Tensor, layer: int = -1) -> np.ndarray:
     """Mean of [CLS] -> patch attention at `layer`, averaged over heads.
 
-    layer = -1 (last) is most semantic but spatially coarse;
-    earlier layers (e.g. 6-8) often have finer spatial detail.
+    layer = -1 (last) is most semantic but spatially crude,
+    earlier layers often have finer spatial detail.
     """
     with torch.no_grad():
         outputs = model(pixel_values=image_tensor, output_attentions=True)
