@@ -1,6 +1,7 @@
 # Retrieval eval artifacts
-runs/retrieval_eval/
-runs/
+runs/retieval_eval
+runs/detect
+yolo_runs/
 logs/
 
 # Local env
