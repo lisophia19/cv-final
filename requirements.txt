@@ -1,0 +1,13 @@
+numpy
+opencv-python
+Pillow
+PyYAML
+torch
+torchvision
+transformers
+peft
+ultralytics
+streamlit
+matplotlib
+inference-sdk
+python-dotenv

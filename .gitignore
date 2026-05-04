@@ -1,5 +1,8 @@
 # Retrieval eval artifacts
-runs/retrieval_eval/
+runs/retieval_eval
+runs/detect
+yolo_runs/
+logs/
 
 # Local env
 .venv/
