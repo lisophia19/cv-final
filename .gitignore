@@ -11,3 +11,7 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Local matplotlib cache (headless plot scripts)
+.mpl_cache/
+.font_cache/

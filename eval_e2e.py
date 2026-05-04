@@ -29,7 +29,19 @@ from recipe_retrieval.rankers import PenaltyConfig
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_LABELS = BASE_DIR / "eval_data" / "labels.jsonl"
 DEFAULT_OUT_DIR = BASE_DIR / "runs" / "e2e_eval"
-MODEL_PATH = BASE_DIR / "runs" / "ingredients_yolo11n" / "weights" / "best.pt"
+
+
+def _resolve_yolo_weights(base: Path) -> Path:
+    for p in (
+        base / "yolo" / "ingredients_yolo11n" / "weights" / "best.pt",
+        base / "runs" / "ingredients_yolo11n" / "weights" / "best.pt",
+    ):
+        if p.exists():
+            return p
+    return base / "yolo" / "ingredients_yolo11n" / "weights" / "best.pt"
+
+
+MODEL_PATH = _resolve_yolo_weights(BASE_DIR)
 RECIPE_PATH = BASE_DIR / "fridge_data" / "sample_recipes.jsonl"
 ALIAS_PATH = BASE_DIR / "fridge_data" / "team_ingredient_alias.json"
 DEFAULT_CONF_THRESHOLD = 0.25

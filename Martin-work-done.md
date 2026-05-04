@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-04-29 (UTC, post-main-sync E2E baseline+tuning pass)  
+**Last updated:** 2026-05-04 (UTC, post-merge poster figure + YOLO path fix)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 ---
@@ -32,6 +32,8 @@
 
 ## What changed since last update
 
+- Merged latest `main` (team moved YOLO weights under `yolo/`); `eval_e2e.py` now resolves `yolo/.../best.pt` first, then legacy `runs/...`.
+- Added `scripts/plot_poster_topk.py` and default output `figures/poster_topk_retrieval.png` for the poster’s top-k retrieval bar chart (reads latest `runs/e2e_eval/e2e_eval_*.json` unless `--json` is passed).
 - Rehauled this document for team-facing hybrid format (status first, technical evidence second).
 - Completed Sprint A hardening (input validation, deterministic ordering, edge-case tests).
 - Completed Sprint B evaluation pass with expanded case set.
