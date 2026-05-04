@@ -1,6 +1,6 @@
 # My retrieval & ranking work — status and deliverables
 
-**Last updated:** 2026-05-04 (UTC, post-merge poster figure + YOLO path fix)  
+**Last updated:** 2026-05-04 (UTC, poster figures pinned to team eval JSON + companion detection chart)  
 **Who I am on this project:** Martin (Recipe Retrieval & Ranking)
 
 ---
@@ -33,7 +33,7 @@
 ## What changed since last update
 
 - Merged latest `main` (team moved YOLO weights under `yolo/`); `eval_e2e.py` now resolves `yolo/.../best.pt` first, then legacy `runs/...`.
-- Added `scripts/plot_poster_topk.py` and default output `figures/poster_topk_retrieval.png` for the poster’s top-k retrieval bar chart (reads latest `runs/e2e_eval/e2e_eval_*.json` unless `--json` is passed).
+- Added `scripts/plot_poster_topk.py` and `scripts/plot_poster_detection_prf1.py`; poster PNGs should be built with an explicit `--json` so they match the metrics already on the board (`e2e_eval_20260429T152250Z.json` unless the team picks another artifact).
 - Rehauled this document for team-facing hybrid format (status first, technical evidence second).
 - Completed Sprint A hardening (input validation, deterministic ordering, edge-case tests).
 - Completed Sprint B evaluation pass with expanded case set.
@@ -74,6 +74,19 @@ All strategies are fully implemented and working as expected on current sample e
   - `confidence_weighted`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
   - `penalty_aware`: recall@1=1.0, recall@3=1.0, recall@5=1.0, mrr=1.0
 - **Interpretation:** retrieval plumbing remains stable on curated sample data.
+
+### Poster figures (pinned to one eval JSON — no accidental number drift)
+
+Use the **same** `e2e_eval_*.json` that matches whatever the poster already prints. The repo’s figures are currently regenerated from the **tuned overlap** run already cited in this doc (so top-k bars = **6% / 9.1% / 9.1%** top-1/3/5, same run as mean P/R/F1 **0.317 / 0.072 / 0.108**):
+
+- **Top-k retrieval:** `figures/poster_topk_retrieval.png`  
+  `python3 scripts/plot_poster_topk.py --json runs/e2e_eval/e2e_eval_20260429T152250Z.json --out figures/poster_topk_retrieval.png`
+- **Detection snapshot (same run):** `figures/poster_detection_prf1.png`  
+  `python3 scripts/plot_poster_detection_prf1.py --json runs/e2e_eval/e2e_eval_20260429T152250Z.json`
+
+If the printed poster uses a **different** JSON timestamp, swap only the `--json` path; do not re-run eval unless the team agrees to refresh all printed metrics.
+
+**Runtime (rough):** `eval_e2e.py` (YOLO + retrieval) on ~33 images is typically **on the order of seconds** on a normal laptop GPU/Metal. `eval_e2e_dino.py` (TokenCut + DINO + LoRA per image) is **much slower** (often **many minutes** for the full set); skip it for poster unless the board explicitly shows DINO E2E numbers and you have a saved `dino_e2e_eval_*.json` to plot from.
 
 ### End-to-end benchmark on team eval set (new, more realistic)
 - **Baseline run command:** `python3 eval_e2e.py --labels eval_data/labels.jsonl --out runs/e2e_eval`
