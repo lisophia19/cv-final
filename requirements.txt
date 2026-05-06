@@ -11,3 +11,5 @@ streamlit
 matplotlib
 inference-sdk
 python-dotenv
+tqdm
+ipykernel

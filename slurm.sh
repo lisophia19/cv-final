@@ -7,6 +7,6 @@
 #SBATCH --output=dino_train.out
 #SBATCH --error=dino_train.err
 
-python temp2.py
+python temp.py
 
-echo "Finished running temp2.py"
+echo "Finished running temp.py"

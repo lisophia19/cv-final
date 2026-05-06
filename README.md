@@ -36,9 +36,29 @@ Fridge food detection for recipe generation.
 
 ### Ingredient identification/classification - DINOv2 (Nina)
 
-`dino_test.py`: (file used to get familiar with using pretrained DINOv2 on sample images) loads a pretrained DINOv2 model and uses it to generate embeddings for all images in the data/ directory. It then computes pairwise cosine similarity across all images for ingredient classification.
+`dino/dino_test.py`: (file used to get familiar with using pretrained DINOv2 on sample images) loads a pretrained DINOv2 model and uses it to generate embeddings for all images in the data/ directory. It then computes pairwise cosine similarity across all images for ingredient classification.
 
-`dino.ipynb`: (actual DINO pipeline) crops individual ingredients from labeled dataset images using YOLO bounding boxes, extracts DINOv2 embeddings for each crop saved in chunked .npz files, then merges those chunks into a single embeddings file for k-NN classification.
+`dino/dino.ipynb`: (actual DINO pipeline) contains the full ingredient classification pipeline:
+
+- **Cell 1 — imports**
+
+- **Cell 2 — Fully-frozen DINOv2 baseline**: loads the frozen pretrained DINOv2-base model, crops individual ingredients from labeled dataset images using YOLO bounding boxes, extracts a 768-dim CLS token embedding per crop, normalizes all embeddings, and saves them to a `.npz` file for k-NN classification. 85.3% accuracy.
+
+- **Cell 3 — LoRA fine-tuning**: fine-tunes DINOv2-base with LoRA, applied to the query and value attention projections. Builds a `CropDataset` from YOLO-labeled images, trains a linear classification head on top of the LoRA-adapted backbone for 10 epochs using AdamW, then re-extracts and saves embeddings for k-NN evaluation. Achieved 88.7% accuracy with best LoRA parameters (rank=8, alpha=8, dropout=0.1).
+
+- **Cell 4 — k-NN evaluation**: loads train and test `.npz` embedding files and runs k-NN classification (k=5, cosine similarity) on the test set. For each test crop, finds the 5 most similar training embeddings and takes a majority vote. Logs per-sample predictions and saves full results to `knn_results.txt`.
+
+- **Cell 5 — Single image inference**: loads the saved LoRA adapters and classifier head and runs inference on a single image, printing the predicted class, confidence, and a probabilities for all 113 classes.
+
+- **Cell 6 — Chunked embedding extraction**: memory-efficient version of Cell 2 for larger datasets. Extracts embeddings in batches and saves them to numbered chunk files (`chunk_0.npz`, `chunk_1.npz`, ...) every 1000 crops to avoid memory overflow.
+
+- **Cell 7 — Merge chunks**: merges all chunk `.npz` files into a single `.npz` file for use in k-NN evaluation.
+
+`dino/<folders>`: contains folders with the results of different training configurations tested during fine-tuning. Each folder contains `knn_results.txt` with the k-NN accuracy on the test set and `config.txt` with the LoRA parameters used for that run.
+
+`dino/lora/`: contains the best performing LoRA configuration (rank=8, alpha=8, dropout=0.1, 88.7% accuracy), including the LoRA adapter weights (`dinov2_lora_adapters/`), the trained linear classifier head (`classifier/`), the train and test embeddings (`dinov2_objects_train.npz` and `dinov2_objects_test.npz`), and the corresponding `config.txt` and `knn_results.txt`.
+
+
 
 
 ### Recipe retrieval and ranking (Martin)
