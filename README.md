@@ -1,14 +1,47 @@
-# cv-final
+# cv-final: What's in my Fridge?
 Fridge food detection for recipe generation.
 
-## Ingredient identification/classification - DINOv2 (Nina)
+## Instructions to run code
+1. Create and activate a virtual environment:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+2. Install dependencies:
+   ```bash
+   python -m pip install -U pip
+   python -m pip install -r requirements.txt
+   ```
+3. (Optional) Run notebooks 
+4. Launch the full app:
+   ```bash
+   streamlit run app.py
+   ```
+
+## Notes
+- If you get an import warning in the editor, select `.venv/bin/python` as your Python interpreter.
+- Update `path/to/dataset.yaml` in `yolo.py` to your actual dataset config before training.
+- For `test.py` (Roboflow), install `inference-sdk` and `python-dotenv` and set `ROBOFLOW_API_KEY` in a `.env` file.
+
+## Portions 
+### Datasets (Sophia and Bryant)
+- `ingredients_data`: Roboflow ingredient dataset cleaned to 4.2k+ images across 113 classes.
+- `eval_data`: Fridge/recipe evaluation set used for project metrics.
+
+### Ingredient identification/classification - YOLO and DINO (Sophia)
+
+- `yolo.py` and `yolo.ipynb`: train and experiment with YOLOv11 on the ingredient dataset, then export ingredient detections/crops. Outputs metrics that are later used to compare all three pipelines
+- `dino.ipynb`: added metric calculations for YOLO/DINO pipeline
+- `dino_eval_stat.ran.ipynb`: notebook used to inspect/evaluate full DINO pipeline
+
+### Ingredient identification/classification - DINOv2 (Nina)
 
 `dino_test.py`: (file used to get familiar with using pretrained DINOv2 on sample images) loads a pretrained DINOv2 model and uses it to generate embeddings for all images in the data/ directory. It then computes pairwise cosine similarity across all images for ingredient classification.
 
 `dino.ipynb`: (actual DINO pipeline) crops individual ingredients from labeled dataset images using YOLO bounding boxes, extracts DINOv2 embeddings for each crop saved in chunked .npz files, then merges those chunks into a single embeddings file for k-NN classification.
 
 
-## Recipe retrieval and ranking (Martin)
+### Recipe retrieval and ranking (Martin)
 
 `recipe_retrieval` takes detected ingredients (same shape as `test.py` after deduplication) and returns a ranked list of recipes. Use your own **JSON/JSONL** recipe corpus, or the bundled sample: `fridge_data/sample_recipes.jsonl`.
 
@@ -57,24 +90,3 @@ python3 -m recipe_retrieval.cli demo \
 ```bash
 python3 -m unittest discover -s tests -v
 ```
-
-## Instructions to run code (vision / YOLO)
-1. Create and activate a virtual environment:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-2. Install dependencies:
-   ```bash
-   python -m pip install -U pip
-   python -m pip install -U ultralytics
-   ```
-3. Run the script:
-   ```bash
-   python yolo.py
-   ```
-
-## Notes
-- If you get an import warning in the editor, select `.venv/bin/python` as your Python interpreter.
-- Update `path/to/dataset.yaml` in `yolo.py` to your actual dataset config before training.
-- For `test.py` (Roboflow), install `inference-sdk` and `python-dotenv` and set `ROBOFLOW_API_KEY` in a `.env` file.

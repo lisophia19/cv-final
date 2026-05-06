@@ -91,6 +91,7 @@ def test_model(model, dataset_path, conf=0.25, iou=0.6):
     )
 
     pred_ingredients = {}
+    crop_manifest = {}
 
     for image_idx, result in enumerate(results):
         best_pred_per_ingredient = {}
@@ -112,6 +113,13 @@ def test_model(model, dataset_path, conf=0.25, iou=0.6):
 
             crop_path = crops_root / f"{image_name}_{box_idx}.jpg"
             cv2.imwrite(str(crop_path), crop)
+            crop_manifest[crop_path.name] = {
+                "source_image": Path(result.path).name if result.path else image_name,
+                "box_index": box_idx,
+                "yolo_label": ingredient,
+                "yolo_confidence": round(confidence, 6),
+                "bbox_xyxy": [x1, y1, x2, y2],
+            }
 
         ingredient_list = [
             {"ingredient": cls, "confidence": round(conf, 3)} for cls, conf in best_pred_per_ingredient.items()
@@ -119,7 +127,12 @@ def test_model(model, dataset_path, conf=0.25, iou=0.6):
         print(f"{Path(result.path).name}: {ingredient_list}")
         pred_ingredients[f"{Path(result.path).name}"] = ingredient_list
 
+    manifest_path = crops_root / "crop_manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(crop_manifest, f, indent=2)
+
     print(f"Prepared crops for DINO under {crops_root}")
+    print(f"Wrote crop manifest: {manifest_path}")
     return pred_ingredients
 
 
