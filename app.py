@@ -121,8 +121,8 @@ def detect_ingredients(models, image: Image.Image) -> tuple[list[Ingredient], Im
         method="tokencut", device="cpu",
     )
 
-    # Filters low-confidence and dedups by max confidence per ingredient 
-    # in order to keep the best box 
+    # Demo-side dedup: drop classifier predictions below 0.5 (cleaner UI than the eval pipeline,
+    # which keeps everything for fair comparison). Keep highest-confidence box per ingredient name.
     best_conf: dict[str, float] = {}
     best_box: dict[str, tuple[int, int, int, int]] = {}
     for d in detections:
@@ -136,6 +136,7 @@ def detect_ingredients(models, image: Image.Image) -> tuple[list[Ingredient], Im
         {"ingredient": name, "confidence": round(conf, 3)}
         for name, conf in sorted(best_conf.items(), key=lambda kv: -kv[1])
     ]
+
 
     img_np = np.array(image).copy()
     for name, box in best_box.items():
@@ -151,6 +152,9 @@ def detect_ingredients(models, image: Image.Image) -> tuple[list[Ingredient], Im
 def get_recipes(ingredients: list[Ingredient]) -> list[Recipe]:
     if not ingredients:
         return []
+    # Martin's retrieval module matches ingredient names against an
+    # alias map, scores recipes via the penalty-aware ranker,
+    # and returns the top-k by score.
     index = load_recipe_index()
     result = retrieve_with_reconciled_vocab(
         ingredients,
@@ -159,6 +163,7 @@ def get_recipes(ingredients: list[Ingredient]) -> list[Recipe]:
         k=5,
         alias_path=TEAM_ALIAS_PATH if TEAM_ALIAS_PATH.exists() else None,
     )
+    # Build a set of normalized keys for what we detected
     detected_keys = {
         ingredient_key(item.canonical)
         for item in result.normalized
@@ -168,10 +173,11 @@ def get_recipes(ingredients: list[Ingredient]) -> list[Recipe]:
     for ranked in result.top_k:
         rec = index.recipes.get(ranked.recipe_id)
         if rec is None:
-            continue
+            continue  
+        # Set of ingredients this recipe needs (normalized).
         recipe_keys = {ingredient_key(x) for x in rec.ingredients if ingredient_key(x)}
-        matched_keys = sorted(recipe_keys & detected_keys)
-        missing_keys = sorted(recipe_keys - detected_keys)
+        matched_keys = sorted(recipe_keys & detected_keys)  
+        missing_keys = sorted(recipe_keys - detected_keys)  
         out.append(
             {
                 "title": rec.title,
@@ -195,11 +201,13 @@ def main() -> None:
             "**🍔 Recipe retrieval** ranks recipes by ingredient overlap."
         )
 
+
     if "uploader_key" not in st.session_state:
         st.session_state.uploader_key = 0
     if "chosen_sample" not in st.session_state:
         st.session_state.chosen_sample = None
 
+    # One button per fridge_test*.jpg in the repo, laid out in equal columns.
     sample_paths = sorted((BASE_DIR / "fridge_data").glob("fridge_test*.jpg"))
     if sample_paths:
         st.markdown("**Try a sample fridge:**")
@@ -208,7 +216,7 @@ def main() -> None:
             with col:
                 if st.button(f"Test fridge {i}", key=f"sample_btn_{i}", width="stretch"):
                     st.session_state.chosen_sample = str(path)
-                    st.session_state.uploader_key += 1
+                    st.session_state.uploader_key += 1  # force-reset the uploader widget
 
     uploaded = st.file_uploader(
         "Or upload your own image",
@@ -216,6 +224,7 @@ def main() -> None:
         key=f"uploader_{st.session_state.uploader_key}",
     )
 
+    # Priority: a fresh upload wins over a previously-clicked sample.
     if uploaded is not None:
         st.session_state.chosen_sample = None
         image = Image.open(uploaded).convert("RGB")

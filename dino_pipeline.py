@@ -64,6 +64,7 @@ def dedupe_by_class(detections: list[Detection]) -> list[Detection]:
     same class. This collapses them to one detection per class so the eval and demo aren't
     double-counting the same prediction.
     """
+
     best_per_class: dict[str, Detection] = {}
     for d in detections:
         if d.ingredient not in best_per_class or d.confidence > best_per_class[d.ingredient].confidence:
@@ -73,6 +74,7 @@ def dedupe_by_class(detections: list[Detection]) -> list[Detection]:
 
 def load_classifier(device: str = "cpu"):
     """Loads Nina's DINOv2, LoRA, and linear-classifier stack."""
+
     backbone = AutoModel.from_pretrained(MODEL_NAME).to(device)
     backbone = PeftModel.from_pretrained(backbone, str(LORA_ADAPTER_DIR)).to(device)
     backbone.eval()
@@ -103,12 +105,16 @@ def classify_crop(
     device: str = "cpu",
 ) -> tuple[str, float]:
     """Classifies one image crop. Returns (ingredient, confidence)."""
+    # Use the [CLS] token's hidden state as the image-level embedding
     pixel_values = processor(images=crop, return_tensors="pt")["pixel_values"].to(device)
     with torch.no_grad():
+        # last_hidden_state shape: (1, seq_len, hidden_dim).
+        # [:, 0, :] picks the [CLS] token (position 0) across all batch elements.
         emb = backbone(pixel_values=pixel_values).last_hidden_state[:, 0, :]
+        # classifier is a single Linear layer: (hidden_dim,) -> (num_classes,).
         logits = classifier(emb)
         probs = torch.softmax(logits, dim=1).squeeze()
-    pred_idx = int(probs.argmax().item())
+    pred_idx = int(probs.argmax().item())  # index of the most likely class
     return class_names[pred_idx], float(probs[pred_idx].item())
 
 
@@ -130,9 +136,10 @@ def detect_and_classify(
 ) -> tuple[list[Detection], np.ndarray]:
     """Full pipeline: image -> list[Detection] and a 2D heatmap for visualization."""
     H, W = image.size[1], image.size[0]
-    image_tensor = preprocess_for_detect(image).to(device)
+    image_tensor = preprocess_for_detect(image).to(device)  
 
     if method == "threshold":
+        # Attention-threshold pipeline (works well on isolated objects, fails on cluttered scenes)
         attn_map = get_attention_map(detector, image_tensor, layer=layer)
         boxes, viz_map = attention_to_boxes(
             attn_map, (H, W),
@@ -140,10 +147,11 @@ def detect_and_classify(
             min_area_fraction=MIN_BOX_AREA_FRACTION,
             max_area_fraction=max_area_fraction,
         )
-    else:  # tokencut is used 
+    else:  # tokencut is used
+        # TokenCut pipeline (better for cluttered fridge scenes)
         features = get_patch_features(detector, image_tensor)
         n_patches = features.shape[0]
-        grid_size = int(np.sqrt(n_patches))
+        grid_size = int(np.sqrt(n_patches))  
         assert grid_size * grid_size == n_patches, f"Non-square patch grid: {n_patches}"
         boxes, fg_grid = tokencut_to_boxes(
             features, (H, W),
@@ -153,7 +161,11 @@ def detect_and_classify(
             max_area_fraction=max_area_fraction,
             max_objects=max_objects,
         )
+        # Upsample the (grid_size x grid_size) foreground mask to image resolution
+        # for the visualization
         viz_map = cv2.resize(fg_grid, (W, H), interpolation=cv2.INTER_NEAREST)
+
+    # For each detected box, crop the original image and run the classifier.
 
     detections: list[Detection] = []
     for box in boxes:

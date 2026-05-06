@@ -39,37 +39,43 @@ def normalize(s: str) -> str:
 
 
 def ingredient_match(detected: list[str], true: list[str]) -> tuple[int, int, int]:
-    """Greedy 1-to-1 substring match. Returns (true_positives, false_positives, false_negatives)."""
-    det = [normalize(d) for d in detected]
+    """Greedy 1-to-1 substring match, which prevents one true ingredient from being matched by multiple detections.     
+    Returns (true_positives, false_positives, false_negatives)."""   
+    # Ex: Substring match handles "Cherry Tomato" detection counting toward "tomato" ground truth. 
+    det = [normalize(d) for d in detected]  
     tru = [normalize(t) for t in true]
 
     matched_true: set[int] = set()
     matched_det: set[int] = set()
 
+    # For each detection, find the first unmatched ground-truth that substring-matches.
+    # Greedy: once we pair (i, j), neither can be reused.
     for i, d in enumerate(det):
         for j, t in enumerate(tru):
             if j in matched_true or i in matched_det:
-                continue
-            if t in d or d in t:
+                continue  
+            if t in d or d in t:  
                 matched_true.add(j)
                 matched_det.add(i)
-                break
+                break 
 
-    tp = len(matched_det)
-    fp = len(det) - tp
-    fn = len(tru) - len(matched_true)
+    tp = len(matched_det)              # detections paired with a ground-truth
+    fp = len(det) - tp                 # unpaired detections (false positives)
+    fn = len(tru) - len(matched_true)  # unmatched ground-truths (false negatives)
     return tp, fp, fn
 
 
 def recipe_match(retrieved_titles: list[str], reasonable: list[str], k: int) -> bool:
     """Checks if any of the top-k retrieved recipes match a reasonable recipe."""
     reasonable_lower = [normalize(r) for r in reasonable]
+    # Only the first k retrieved recipes (so top-3 only checks ranks 0-2).
     for title in retrieved_titles[:k]:
         title_lower = normalize(title)
+        
         for r in reasonable_lower:
             if r in title_lower or title_lower in r:
-                return True
-    return False
+                return True 
+    return False  
 
 
 def evaluate_one(
@@ -88,11 +94,13 @@ def evaluate_one(
         return None
 
     image = Image.open(image_path).convert("RGB")
+    # Full DINO pipeline: TokenCut on DINOv2 features for boxes, then DINOv2+LoRA for classification.
     detections, _ = detect_and_classify(
         image, detector, backbone, classifier, processor, class_names,
         method="tokencut", device=device,
     )
 
+    # Dedup by ingredient name, TokenCut often produces multiple boxes the classifier labels the same.
     best: dict[str, float] = {}
     for d in detections:
         if d.ingredient not in best or d.confidence > best[d.ingredient]:
@@ -105,10 +113,12 @@ def evaluate_one(
     ]
 
     tp, fp, fn = ingredient_match(detected, true_ingredients)
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0  
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0     
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0  
 
+    # Pass detections (with confidence) into Martin's penalty-aware ranker,
+    # ranker scores recipes by ingredient overlap weighted by detection confidence.
     retrieval = retrieve_with_reconciled_vocab(
         detected_with_conf,
         index=index,
@@ -194,6 +204,7 @@ def main() -> None:
         print("\nNo valid evaluation cases.")
         return
 
+    # Macro-averaged metrics (mean across per-image scores).
     aggregate = {
         "n_images": len(per_image),
         "mean_precision": round(mean(r["precision"] for r in per_image), 3),
