@@ -1,6 +1,9 @@
 # cv-final: What's in my Fridge?
 Fridge food detection for recipe generation.
 
+![poster](./CVFinal_Poster.pptx.svg)
+
+
 ## Instructions to run code
 1. Create and activate a virtual environment:
    ```bash
